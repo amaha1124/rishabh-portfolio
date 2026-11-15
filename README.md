@@ -1,4 +1,4 @@
-# Rishabh Arora — Space Portfolio (v6)
+# Rishabh Arora — Space Portfolio (v8.0)
 
 A continuous Three.js space-exploration portfolio. This is a static site; no build step is required.
 
@@ -15,7 +15,9 @@ A continuous Three.js space-exploration portfolio. This is a static site; no bui
 - Arrow keys: forward / backward cruise impulse
 - Mouse drag: look around
 - Mouse wheel / trackpad: continuous forward/backward and lateral travel
-- HUD dots: accelerate toward a landmark (no page snap)
+- Previous / Next controls: smoothly travel to the adjacent chapter
+- `Alt + Arrow Left/Right` (or `Alt + Arrow Up/Down`): previous / next chapter
+- `Escape`: stop the guided tour or automatic chapter navigation
 - `PLAY SOUND`: start/pause the ambient soundtrack (requires a click due to browser autoplay policy)
 
 ## Run locally
@@ -37,8 +39,7 @@ Import the GitHub repository as a static project. Framework preset: Other; Build
 
 ## Responsive release (v6.1)
 - Responsive layouts for desktop, laptop, tablet, portrait mobile, and landscape mobile.
-- Mobile content panels can scroll internally without scrolling the document.
-- Touch swipes outside content panels control flight; horizontal swipes strafe.
+- Mobile panels remain visually uncluttered; one-finger swipes control flight and horizontal swipes strafe.
 - Reduced WebGL pixel ratio, star count, antialiasing, and shadow cost on smaller devices.
 - Desktop keyboard, mouse, wheel, and trackpad navigation remain available.
 
@@ -78,3 +79,16 @@ Planet surface textures: Solar System Scope, https://www.solarsystemscope.com/te
 - Added gradual warm-to-cool lighting changes as the camera travels deeper into the experience.
 - Added a subtle breathing glow to the final portal near the contact destination.
 - Kept the existing top progress bar, guided journey, Return to Top control, planet texture loading and responsive flight controls unchanged.
+
+
+## v8.0 functional, navigation and accessibility release
+
+- Added a one-click **Copy Email** action with accessible success/failure feedback and a fallback for browsers without Clipboard API support.
+- The top progress bar now follows camera position continuously between all six chapter anchors; its progress value is exposed to assistive technology.
+- Previous/Next chapter controls now guide the camera to the adjacent chapter anchor instead of applying a fixed movement impulse. `Alt + Arrow` keys provide the same chapter navigation; `Escape` stops the guided tour or an automatic chapter move.
+- Clicking the RA brand smoothly returns to the opening chapter.
+- Added a first-frame loading screen and a simplified readable page fallback if the Three.js module or WebGL initialization fails.
+- Rendering pauses while the browser tab is hidden. Decorative star twinkle, planet spin, asteroid rotation and portal pulsing respect `prefers-reduced-motion`.
+- Added stronger keyboard focus indicators, semantic progress and status announcements, button labels/pressed states, and a skip-to-contact link.
+- Graphics pixel ratio and shadow usage are reduced on smaller or lower-power devices. The 3D scene remains dependent on browser WebGL support and an internet connection for the Three.js module and remote planet textures.
+- No employer project repository links were added; personal repository links can be added when those URLs are available.

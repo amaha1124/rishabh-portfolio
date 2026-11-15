@@ -10,9 +10,18 @@ scene.background = new THREE.Color(0x030611);
 const camera = new THREE.PerspectiveCamera(matchMedia('(max-width: 760px)').matches ? 58 : 48, innerWidth / innerHeight, 0.1, 1800);
 camera.position.set(0, 0, 23);
 const isSmallScreen = matchMedia('(max-width: 760px)').matches;
-const isLowPower = isSmallScreen || matchMedia('(max-width: 1100px)').matches;
-const renderer = new THREE.WebGLRenderer({ antialias: !isSmallScreen, alpha: false, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(devicePixelRatio, isSmallScreen ? 1.35 : 1.75));
+const isLowPower = isSmallScreen || matchMedia('(max-width: 1100px)').matches || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+let prefersReducedMotion = reducedMotionQuery.matches;
+reducedMotionQuery.addEventListener?.('change', event => { prefersReducedMotion = event.matches; });
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ antialias: !isSmallScreen, alpha: false, powerPreference: 'high-performance' });
+} catch (error) {
+  window.portfolioBootError?.('WebGL is unavailable or disabled in this browser. You can still browse the portfolio in a simplified layout below.');
+  throw error;
+}
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, isSmallScreen ? 1.25 : isLowPower ? 1.4 : 1.65));
 renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -24,7 +33,7 @@ container.appendChild(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0x9aadd0, 0x080b18, 0.34));
 const keyLight = new THREE.DirectionalLight(0xffe7cf, 2.25);
 keyLight.position.set(-18, 18, 28);
-keyLight.castShadow = true;
+keyLight.castShadow = !isLowPower;
 scene.add(keyLight);
 const fillLight = new THREE.PointLight(0x526fbd, 32, 420);
 fillLight.position.set(20, -8, -35);
@@ -178,10 +187,13 @@ scene.add(asteroids);
 
 // The content anchors are landmarks in one continuous world, not separate pages.
 const chapters = [...document.querySelectorAll('.chapter')];
+chapters.forEach((chapter, index) => chapter.setAttribute('aria-hidden', index === 0 ? 'false' : 'true'));
 const dots = [...document.querySelectorAll('.dots button')];
 const names = ['DEEP SPACE', 'THE ORIGIN', 'SYSTEMS PLANET', 'FIELD MISSIONS', 'THE NEXT FRONTIER', 'OPEN CHANNEL'];
 const anchors = [23, -35, -78, -121, -164, -210];
 let currentChapter = 0;
+let lastProgressAnnouncement = -1;
+let navigationTarget = null;
 let journeyRunning = false;
 let returningToTop = false;
 let journeyStopIndex = 0;
@@ -196,6 +208,7 @@ function stopJourney() {
 }
 function startJourney() {
   journeyRunning = true; journeyStopIndex = 0; journeyDwellUntil = 0; journeyLastFrame = performance.now();
+  navigationTarget = null;
   velocity.set(0, 0, 0);
   if (journeyButton) { journeyButton.textContent = 'PAUSE JOURNEY'; journeyButton.setAttribute('aria-pressed', 'true'); }
 }
@@ -204,22 +217,65 @@ const returnTopButton = document.querySelector('#returnTopBtn');
 returnTopButton?.addEventListener('click', () => {
   stopJourney();
   returningToTop = true;
+  navigationTarget = null;
   pressed.clear();
   velocity.set(0, 0, 0);
   topViewEnabled = false;
   topViewTargetPitch = 0;
 });
+function chapterTargetX(index) {
+  return index === 2 || index === 4 ? 8 : index === 3 ? -7 : 0;
+}
+function navigateToChapter(index) {
+  const target = THREE.MathUtils.clamp(index, 0, anchors.length - 1);
+  stopJourney();
+  returningToTop = false;
+  topViewEnabled = false;
+  topViewTargetPitch = 0;
+  navigationTarget = target;
+  pressed.clear();
+  velocity.set(0, 0, 0);
+}
 function updateChapter() {
   let nearest = 0, best = Infinity;
   anchors.forEach((z, i) => { const distance = Math.abs(camera.position.z - z); if (distance < best) { best = distance; nearest = i; } });
-  if (nearest === currentChapter) return;
-  currentChapter = nearest;
-  chapters.forEach((chapter, i) => chapter.classList.toggle('active', i === currentChapter));
-  dots.forEach((dot, i) => dot.classList.toggle('selected', i === currentChapter));
-  const label = document.querySelector('#sectorLabel'); if (label) label.textContent = `SECTOR 0${currentChapter} · ${names[currentChapter]}`;
-  const number = document.querySelector('#captionNumber'); if (number) number.textContent = `0${currentChapter}`;
-  const caption = document.querySelector('#captionName'); if (caption) caption.textContent = names[currentChapter];
-  const progress = document.querySelector('#progress'); if (progress) progress.style.width = `${currentChapter / 5 * 100}%`;
+  if (nearest !== currentChapter) {
+    currentChapter = nearest;
+    chapters.forEach((chapter, i) => {
+      chapter.classList.toggle('active', i === currentChapter);
+      chapter.setAttribute('aria-hidden', i === currentChapter ? 'false' : 'true');
+    });
+    dots.forEach((dot, i) => dot.classList.toggle('selected', i === currentChapter));
+    const label = document.querySelector('#sectorLabel'); if (label) label.textContent = `SECTOR 0${currentChapter} · ${names[currentChapter]}`;
+    const number = document.querySelector('#captionNumber'); if (number) number.textContent = `0${currentChapter}`;
+    const caption = document.querySelector('#captionName'); if (caption) caption.textContent = names[currentChapter];
+  }
+  // Interpolate between chapter anchors so the top bar follows the actual flight continuously.
+  let journeyProgress = 0;
+  if (camera.position.z <= anchors[anchors.length - 1]) journeyProgress = 100;
+  else if (camera.position.z < anchors[0]) {
+    for (let i = 0; i < anchors.length - 1; i++) {
+      if (camera.position.z <= anchors[i] && camera.position.z >= anchors[i + 1]) {
+        const segment = (anchors[i] - camera.position.z) / (anchors[i] - anchors[i + 1]);
+        journeyProgress = ((i + segment) / (anchors.length - 1)) * 100;
+        break;
+      }
+    }
+  }
+  journeyProgress = THREE.MathUtils.clamp(journeyProgress, 0, 100);
+  const progressFill = document.querySelector('#progress');
+  if (progressFill) progressFill.style.width = `${journeyProgress.toFixed(2)}%`;
+  const progressTrack = document.querySelector('#portfolioProgress');
+  const roundedProgress = Math.round(journeyProgress);
+  if (progressTrack && roundedProgress !== lastProgressAnnouncement) {
+    lastProgressAnnouncement = roundedProgress;
+    progressTrack.setAttribute('aria-valuenow', String(roundedProgress));
+    progressTrack.setAttribute('aria-valuetext', `${roundedProgress} percent complete — ${names[currentChapter]}`);
+  }
+  const previousButton = document.querySelector('#prevScene');
+  const nextButton = document.querySelector('#nextScene');
+  if (previousButton) previousButton.disabled = currentChapter === 0;
+  if (nextButton) nextButton.disabled = currentChapter === chapters.length - 1;
 }
 
 // Flight controls work globally, regardless of which content landmark is visible.
@@ -233,9 +289,26 @@ let topViewTargetPitch = 0;
 const desktopTopView = !isSmallScreen;
 let dragging = false, lastPointerX = 0, lastPointerY = 0;
 const clock = new THREE.Clock();
+const forwardVector = new THREE.Vector3();
+const rightVector = new THREE.Vector3();
+const desiredVector = new THREE.Vector3();
+const cameraLookTarget = new THREE.Vector3();
+const axialSpinRates = [0.075, 0.035, 0.055, 0.065, 0.045, 0.085];
 let lastScrollAt = 0;
 window.addEventListener('keydown', event => {
-  if (keyBindings[event.code] || event.code === 'Space' || event.key.startsWith('Arrow')) { if (journeyRunning) stopJourney(); returningToTop = false; }
+  if (event.key === 'Escape') {
+    stopJourney(); navigationTarget = null; returningToTop = false; pressed.clear(); velocity.set(0, 0, 0);
+    return;
+  }
+  const focusedControl = event.target?.closest?.('a, button, input, textarea, select, [contenteditable="true"]');
+  if (focusedControl) return;
+  if (event.altKey && ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'].includes(event.key)) {
+    const direction = ['ArrowRight', 'ArrowDown'].includes(event.key) ? 1 : -1;
+    navigateToChapter((navigationTarget ?? currentChapter) + direction);
+    event.preventDefault();
+    return;
+  }
+  if (keyBindings[event.code] || event.code === 'Space' || event.key.startsWith('Arrow')) { if (journeyRunning) stopJourney(); navigationTarget = null; returningToTop = false; }
   if (desktopTopView && event.code === 'KeyT') {
     topViewEnabled = !topViewEnabled;
     if (topViewEnabled) { pitchBeforeTopView = pitch; topViewTargetPitch = 1.48; }
@@ -253,6 +326,7 @@ window.addEventListener('blur', () => { pressed.clear(); dragging = false; });
 // Wheel/trackpad input changes ship velocity proportionally, so the visitor chooses the pace.
 window.addEventListener('wheel', event => {
   if (journeyRunning) stopJourney();
+  navigationTarget = null;
   returningToTop = false;
   event.preventDefault();
   // On desktop, Shift + trackpad/mouse-wheel tilts the camera toward a top-down view.
@@ -272,7 +346,7 @@ window.addEventListener('wheel', event => {
 }, { passive: false });
 
 // Click-drag to steer the view. Mouse movement is not tied to the active content card.
-window.addEventListener('pointerdown', event => { if (journeyRunning) stopJourney(); returningToTop = false; if (event.pointerType === 'touch' || event.target.closest('a, button')) return; dragging = true; lastPointerX = event.clientX; lastPointerY = event.clientY; });
+window.addEventListener('pointerdown', event => { if (journeyRunning) stopJourney(); navigationTarget = null; returningToTop = false; if (event.pointerType === 'touch' || event.target.closest('a, button')) return; dragging = true; lastPointerX = event.clientX; lastPointerY = event.clientY; });
 window.addEventListener('pointermove', event => {
   if (!dragging || event.pointerType === 'touch') return;
   const dx = event.clientX - lastPointerX, dy = event.clientY - lastPointerY;
@@ -289,6 +363,7 @@ let touchX = 0, touchY = 0, touchActive = false;
 let touchTargetIsCopy = false;
 window.addEventListener('touchstart', event => {
   if (journeyRunning) stopJourney();
+  navigationTarget = null;
   returningToTop = false;
   if (event.touches.length !== 1) { touchActive = false; return; }
   const t = event.touches[0];
@@ -323,9 +398,48 @@ dots.forEach((dot, index) => dot.addEventListener('click', () => {
   const distance = anchors[index] - camera.position.z;
   velocity.z = THREE.MathUtils.clamp(distance * 0.42, -15, 15);
 }));
-document.querySelector('#prevScene')?.addEventListener('click', () => { velocity.z = 10; });
-document.querySelector('#nextScene')?.addEventListener('click', () => { velocity.z = -10; });
+document.querySelector('#prevScene')?.addEventListener('click', () => navigateToChapter((navigationTarget ?? currentChapter) - 1));
+document.querySelector('#nextScene')?.addEventListener('click', () => navigateToChapter((navigationTarget ?? currentChapter) + 1));
+document.querySelector('.brand')?.addEventListener('click', event => { event.preventDefault(); navigateToChapter(0); });
+document.querySelector('#skipToContact')?.addEventListener('click', event => {
+  if (!document.body.classList.contains('no-webgl')) { event.preventDefault(); navigateToChapter(anchors.length - 1); }
+});
 document.querySelector('#year').textContent = new Date().getFullYear();
+
+// One-click email copy with a legacy fallback for browsers without Clipboard API access.
+const copyEmailButton = document.querySelector('#copyEmailBtn');
+const contactFeedback = document.querySelector('#contactFeedback');
+const contactEmail = 'arorarishabh607@gmail.com';
+function fallbackCopyText(value) {
+  const field = document.createElement('textarea');
+  field.value = value; field.setAttribute('readonly', '');
+  field.style.position = 'fixed'; field.style.opacity = '0'; field.style.pointerEvents = 'none';
+  document.body.appendChild(field); field.select(); field.setSelectionRange(0, value.length);
+  const copied = document.execCommand('copy');
+  field.remove();
+  if (!copied) throw new Error('Clipboard copy command was rejected');
+}
+copyEmailButton?.addEventListener('click', async () => {
+  try {
+    if (navigator.clipboard?.writeText && window.isSecureContext) await navigator.clipboard.writeText(contactEmail);
+    else fallbackCopyText(contactEmail);
+    copyEmailButton.textContent = 'COPIED ✓';
+    if (contactFeedback) contactFeedback.textContent = 'Email address copied to clipboard.';
+  } catch (error) {
+    try {
+      fallbackCopyText(contactEmail);
+      copyEmailButton.textContent = 'COPIED ✓';
+      if (contactFeedback) contactFeedback.textContent = 'Email address copied to clipboard.';
+    } catch (fallbackError) {
+      if (contactFeedback) contactFeedback.textContent = `Copy unavailable. Email: ${contactEmail}`;
+    }
+  }
+  copyEmailButton.disabled = true;
+  window.setTimeout(() => {
+    copyEmailButton.disabled = false;
+    copyEmailButton.textContent = 'COPY EMAIL ⧉';
+  }, 2200);
+});
 
 // Original ambient soundtrack. Playback begins only after the visitor presses the control.
 const soundButton = document.querySelector('#soundBtn');
@@ -334,15 +448,20 @@ if (ambientTrack) ambientTrack.volume = 0.24;
 soundButton?.addEventListener('click', async () => {
   if (!ambientTrack) return;
   if (ambientTrack.paused) {
-    try { await ambientTrack.play(); soundButton.textContent = 'SOUND ON'; soundButton.setAttribute('aria-label', 'Pause ambient soundtrack'); }
+    try { await ambientTrack.play(); soundButton.textContent = 'SOUND ON'; soundButton.setAttribute('aria-label', 'Pause ambient soundtrack'); soundButton.setAttribute('aria-pressed', 'true'); }
     catch (error) { soundButton.textContent = 'AUDIO UNAVAILABLE'; console.error('Could not play soundtrack:', error); }
   } else {
-    ambientTrack.pause(); soundButton.textContent = 'PLAY SOUND'; soundButton.setAttribute('aria-label', 'Play ambient soundtrack');
+    ambientTrack.pause(); soundButton.textContent = 'PLAY SOUND'; soundButton.setAttribute('aria-label', 'Play ambient soundtrack'); soundButton.setAttribute('aria-pressed', 'false');
   }
 });
 
+let animationFrameId = null;
+let hasRenderedOnce = false;
+const warmLightColor = new THREE.Color(0xffe7cf);
+const coolLightColor = new THREE.Color(0x9bb9ff);
 function animate() {
-  requestAnimationFrame(animate);
+  animationFrameId = null;
+  if (document.hidden) return;
   const delta = Math.min(clock.getDelta(), 0.04), elapsed = clock.elapsedTime;
   if (desktopTopView) pitch = THREE.MathUtils.damp(pitch, topViewTargetPitch, 3.2, delta);
   if (returningToTop) {
@@ -362,10 +481,25 @@ function animate() {
       returningToTop = false;
     }
   }
+  if (navigationTarget !== null && !journeyRunning && !returningToTop) {
+    const targetZ = anchors[navigationTarget];
+    const targetX = chapterTargetX(navigationTarget);
+    const dx = targetX - camera.position.x, dy = -camera.position.y, dz = targetZ - camera.position.z;
+    const distance = Math.hypot(dx, dy, dz);
+    yaw = THREE.MathUtils.damp(yaw, 0, 2.8, delta);
+    pitch = THREE.MathUtils.damp(pitch, 0, 2.8, delta);
+    if (distance > 0.7) {
+      const step = Math.min(distance, Math.max(10, distance * 0.82) * delta);
+      camera.position.x += dx / distance * step; camera.position.y += dy / distance * step; camera.position.z += dz / distance * step;
+      velocity.set(0, 0, 0);
+    } else {
+      camera.position.set(targetX, 0, targetZ); navigationTarget = null; velocity.set(0, 0, 0);
+    }
+  }
   if (journeyRunning) {
     const now = performance.now();
     const targetZ = anchors[journeyStopIndex];
-    const targetX = journeyStopIndex === 2 || journeyStopIndex === 4 ? 8 : journeyStopIndex === 3 ? -7 : 0;
+    const targetX = chapterTargetX(journeyStopIndex);
     const targetY = 0;
     const dz = targetZ - camera.position.z;
     const dx = targetX - camera.position.x;
@@ -384,63 +518,109 @@ function animate() {
       else { journeyRunning = false; if (journeyButton) { journeyButton.textContent = 'REPLAY JOURNEY'; journeyButton.setAttribute('aria-pressed', 'false'); } }
     }
   }
-  const forward = new THREE.Vector3(Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), -Math.cos(yaw) * Math.cos(pitch));
-  const right = new THREE.Vector3(Math.cos(yaw), 0, Math.sin(yaw));
-  const desired = new THREE.Vector3();
+  const forward = forwardVector.set(Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), -Math.cos(yaw) * Math.cos(pitch));
+  const right = rightVector.set(Math.cos(yaw), 0, Math.sin(yaw));
+  const desired = desiredVector.set(0, 0, 0);
   if (pressed.has('forward')) desired.add(forward);
   if (pressed.has('back')) desired.sub(forward);
   if (pressed.has('right')) desired.add(right);
   if (pressed.has('left')) desired.sub(right);
   if (pressed.has('up')) desired.y += 1;
   if (pressed.has('down')) desired.y -= 1;
-  if (desired.lengthSq() > 0) desired.normalize().multiplyScalar(20);
-  velocity.addScaledVector(desired.clone().sub(velocity), Math.min(1, delta * 5.5));
-  if (desired.lengthSq() === 0) velocity.multiplyScalar(Math.pow(0.965, delta * 60));
+  const hasFlightInput = desired.lengthSq() > 0;
+  if (hasFlightInput) desired.normalize().multiplyScalar(20);
+  const velocityBlend = Math.min(1, delta * 5.5);
+  velocity.x += (desired.x - velocity.x) * velocityBlend;
+  velocity.y += (desired.y - velocity.y) * velocityBlend;
+  velocity.z += (desired.z - velocity.z) * velocityBlend;
+  if (!hasFlightInput) velocity.multiplyScalar(Math.pow(0.965, delta * 60));
   camera.position.addScaledVector(velocity, delta);
   camera.position.x = THREE.MathUtils.clamp(camera.position.x, -65, 65);
   camera.position.y = THREE.MathUtils.clamp(camera.position.y, -35, 35);
   camera.position.z = THREE.MathUtils.clamp(camera.position.z, -290, 35);
-  camera.lookAt(camera.position.clone().add(forward));
-  stars.rotation.y = elapsed * 0.00012;
-  // Independent, restrained brightness variation makes stars visibly twinkle.
-  for (let i = 0; i < starCount; i++) {
-    const twinkle = 0.72 + 0.28 * (0.5 + 0.5 * Math.sin(elapsed * 1.35 + starTwinklePhases[i]));
-    const offset = i * 3;
-    starColors[offset] = baseStarColors[offset] * twinkle;
-    starColors[offset + 1] = baseStarColors[offset + 1] * twinkle;
-    starColors[offset + 2] = baseStarColors[offset + 2] * twinkle;
+  cameraLookTarget.copy(camera.position).add(forward);
+  camera.lookAt(cameraLookTarget);
+  if (!prefersReducedMotion) {
+    stars.rotation.y = elapsed * 0.00012;
+    // Independent, restrained brightness variation makes stars visibly twinkle.
+    for (let i = 0; i < starCount; i++) {
+      const twinkle = 0.72 + 0.28 * (0.5 + 0.5 * Math.sin(elapsed * 1.35 + starTwinklePhases[i]));
+      const offset = i * 3;
+      starColors[offset] = baseStarColors[offset] * twinkle;
+      starColors[offset + 1] = baseStarColors[offset + 1] * twinkle;
+      starColors[offset + 2] = baseStarColors[offset + 2] * twinkle;
+    }
+    starGeometry.attributes.color.needsUpdate = true;
   }
-  starGeometry.attributes.color.needsUpdate = true;
   // Rotate each complete planetary assembly around its own local axis. Using delta-based
   // increments avoids coupling rotation to camera movement or a shared absolute angle.
   // Speeds are intentionally visible in a portfolio scene while remaining restrained.
-  const axialSpinRates = [0.075, 0.035, 0.055, 0.065, 0.045, 0.085];
-  planets.forEach((planet, index) => {
-    // Rotate each sphere mesh directly; this guarantees every body's visible surface spins
-    // even if its parent assembly is later reoriented for rings or orbital presentation.
-    planet.mesh.rotation.y += delta * axialSpinRates[index];
-  });
+  if (!prefersReducedMotion) {
+    planets.forEach((planet, index) => {
+      // Rotate each sphere mesh directly while respecting the visitor's reduced-motion preference.
+      planet.mesh.rotation.y += delta * axialSpinRates[index];
+    });
+  }
   // Lighting subtly evolves as the visitor travels deeper into the portfolio.
   const journeyDepth = THREE.MathUtils.clamp((-camera.position.z) / 232, 0, 1);
-  const warmLight = new THREE.Color(0xffe7cf);
-  const coolLight = new THREE.Color(0x9bb9ff);
-  keyLight.color.copy(warmLight).lerp(coolLight, journeyDepth * 0.72);
+  keyLight.color.copy(warmLightColor).lerp(coolLightColor, journeyDepth * 0.72);
   keyLight.intensity = THREE.MathUtils.lerp(2.25, 1.55, journeyDepth);
   fillLight.color.setHSL(0.60 - journeyDepth * 0.12, 0.55, 0.55);
   fillLight.intensity = THREE.MathUtils.lerp(32, 42, journeyDepth);
-  asteroids.rotation.y += delta * 0.006;
-  asteroids.rotation.x += delta * 0.0015;
+  if (!prefersReducedMotion) {
+    asteroids.rotation.y += delta * 0.006;
+    asteroids.rotation.x += delta * 0.0015;
+  }
   // The final Jupiter-like portal receives a restrained breathing glow near the contact chapter.
   const finalApproach = THREE.MathUtils.clamp((-camera.position.z - 190) / 42, 0, 1);
-  const portalPulse = 0.5 + 0.5 * Math.sin(elapsed * 1.15);
+  const portalPulse = prefersReducedMotion ? 0.5 : 0.5 + 0.5 * Math.sin(elapsed * 1.15);
   if (planets[5] && planets[5].group.children[2]) {
     planets[5].group.children[2].material.opacity = 0.055 + finalApproach * (0.025 + portalPulse * 0.035);
   }
   updateChapter();
   renderer.render(scene, camera);
+  if (!hasRenderedOnce) {
+    hasRenderedOnce = true;
+    document.body.classList.add('scene-ready');
+    const loadingScreen = document.querySelector('#loadingScreen');
+    if (loadingScreen) {
+      loadingScreen.classList.add('is-hidden');
+      loadingScreen.setAttribute('aria-hidden', 'true');
+      window.setTimeout(() => loadingScreen.remove(), 750);
+    }
+  }
+  animationFrameId = requestAnimationFrame(animate);
 }
+updateChapter();
 animate();
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+    pressed.clear(); dragging = false;
+    if (ambientTrack && !ambientTrack.paused) {
+      ambientTrack.pause();
+      if (soundButton) { soundButton.textContent = 'PLAY SOUND'; soundButton.setAttribute('aria-label', 'Play ambient soundtrack'); soundButton.setAttribute('aria-pressed', 'false'); }
+    }
+  } else if (animationFrameId === null) {
+    clock.getDelta();
+    animate();
+  }
+});
+renderer.domElement.addEventListener('webglcontextlost', event => {
+  event.preventDefault();
+  if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
+  animationFrameId = null;
+  const feedback = document.querySelector('#contactFeedback');
+  if (feedback) feedback.textContent = 'Graphics were interrupted by the browser. Reload the page to restore the 3D scene.';
+});
+renderer.domElement.addEventListener('webglcontextrestored', () => {
+  if (!document.hidden && animationFrameId === null) animate();
+});
 window.addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
-  renderer.setPixelRatio(Math.min(devicePixelRatio, matchMedia('(max-width: 760px)').matches ? 1.35 : 1.75)); renderer.setSize(innerWidth, innerHeight);
+  const mobile = matchMedia('(max-width: 760px)').matches;
+  const lowPower = mobile || matchMedia('(max-width: 1100px)').matches;
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, mobile ? 1.25 : lowPower ? 1.4 : 1.65));
+  renderer.setSize(innerWidth, innerHeight);
 });

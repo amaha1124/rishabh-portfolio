@@ -10,15 +10,25 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<a class="skip-link" id="skipToContact" href="#contact">Skip to contact</a>
+<div class="loading-screen" id="loadingScreen" role="status" aria-live="polite" aria-atomic="true">
+  <div class="loading-panel">
+    <span class="loading-mark">RA</span>
+    <p class="loading-title">INITIALIZING FLIGHT SYSTEMS</p>
+    <div class="loading-track" aria-hidden="true"><span></span></div>
+    <p class="loading-message" id="loadingMessage">Preparing the starfield and navigation systems…</p>
+    <button class="loading-continue" id="continueFallback" type="button" hidden>CONTINUE WITHOUT 3D</button>
+  </div>
+</div>
 <div id="scene" aria-hidden="true"></div>
 <audio id="ambientTrack" src="assets/ambient.mp3" preload="none" loop></audio>
 <div class="vignette"></div><div class="grain"></div>
 <header class="hud">
-  <a class="brand" href="#home"><span class="brand-mark">RA</span><span>RISHABH <i>ARORA</i></span></a>
-  <div class="hud-right"><span id="sectorLabel">SECTOR 00 · DEEP SPACE</span><span class="hud-sep"></span><button id="soundBtn" aria-label="Play ambient soundtrack" title="Play or pause the ambient soundtrack">PLAY SOUND</button></div>
+  <a class="brand" href="#home" aria-label="Rishabh Arora — return to the beginning"><span class="brand-mark">RA</span><span>RISHABH <i>ARORA</i></span></a>
+  <div class="hud-right"><span id="sectorLabel">SECTOR 00 · DEEP SPACE</span><span class="hud-sep"></span><button id="soundBtn" type="button" aria-pressed="false" aria-label="Play ambient soundtrack" title="Play or pause the ambient soundtrack">PLAY SOUND</button></div>
 </header>
-<div class="progress"><span id="progress"></span></div>
-<div class="scene-caption"><span id="captionNumber">00</span><span id="captionName">DEEP SPACE</span></div>
+<div class="progress" id="portfolioProgress" role="progressbar" aria-label="Portfolio journey progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0 percent complete"><span id="progress"></span></div>
+<div class="scene-caption" id="sceneCaption" aria-live="polite" aria-atomic="true"><span id="captionNumber">00</span><span id="captionName">DEEP SPACE</span></div>
 <main id="journey">
   <section class="chapter active" id="home" data-name="DEEP SPACE">
     <div class="copy hero-copy">
@@ -75,17 +85,45 @@
       <div class="eyebrow">SECTOR 05 <b>·</b> OPEN CHANNEL</div><p class="kicker">END OF TRANSMISSION. BEGINNING OF A CONVERSATION.</p>
       <h2>Let's build<br><em>something meaningful.</em></h2>
       <p class="body">Have an interesting problem, an ambitious idea, or just want to talk engineering? My communication channel is open.</p>
-      <div class="links"><a class="primary-link" href="mailto:arorarishabh607@gmail.com">SEND A TRANSMISSION ↗</a><a href="https://www.linkedin.com/in/rishabh-arora1512" target="_blank" rel="noreferrer">LINKEDIN ↗</a><a href="https://github.com/RishabhArora1512" target="_blank" rel="noreferrer">GITHUB ↗</a><a class="resume-link" href="resume.pdf" download="Rishabh-Arora-Resume.pdf">DOWNLOAD RESUME ↓</a></div>
+      <div class="links">
+        <a class="primary-link" href="mailto:arorarishabh607@gmail.com" aria-label="Send an email to Rishabh Arora">SEND A TRANSMISSION ↗</a>
+        <button class="copy-email-btn" id="copyEmailBtn" type="button" aria-label="Copy email address to clipboard">COPY EMAIL ⧉</button>
+        <a href="https://www.linkedin.com/in/rishabh-arora1512" target="_blank" rel="noopener noreferrer" aria-label="Open Rishabh Arora's LinkedIn profile in a new tab">LINKEDIN ↗</a>
+        <a href="https://github.com/RishabhArora1512" target="_blank" rel="noopener noreferrer" aria-label="Open Rishabh Arora's GitHub profile in a new tab">GITHUB ↗</a>
+        <a class="resume-link" href="resume.pdf" download="Rishabh-Arora-Resume.pdf">DOWNLOAD RESUME ↓</a>
+      </div>
+      <p class="contact-feedback" id="contactFeedback" role="status" aria-live="polite" aria-atomic="true"></p>
       <p class="copyright">RISHABH ARORA <b>·</b> ENDLESS CURIOSITY <b>·</b> © <span id="year"></span></p>
     </div><div class="world-tag tag-contact">END OF TRANSMISSION</div>
   </section>
 </main>
 <div class="bottom-hint"><span class="desktop-hint">WASD: FLY · SCROLL: CRUISE · DRAG: LOOK · Q/E: UP/DOWN</span><span class="mobile-hint">SWIPE TO EXPLORE</span></div>
 <button id="returnTopBtn" class="return-top-btn" type="button" aria-label="Return to top" title="Return to top"><span class="return-top-arrow">↑</span><span class="return-top-label">TOP</span></button>
-<div class="scene-controls" aria-label="Scene controls">
-  <button id="prevScene" aria-label="Previous scene">↑</button>
-  <button id="nextScene" aria-label="Next scene">↓</button>
+<div class="scene-controls" role="group" aria-label="Chapter navigation">
+  <button id="prevScene" type="button" aria-label="Navigate to previous chapter" title="Previous chapter">↑</button>
+  <button id="nextScene" type="button" aria-label="Navigate to next chapter" title="Next chapter">↓</button>
 </div>
 <noscript><p class="no-js">This interactive portfolio requires JavaScript. Please enable JavaScript to explore.</p></noscript>
-<script type="module" src="app.js"></script>
+<script>
+  window.portfolioBootError = function (message) {
+    const screen = document.getElementById('loadingScreen');
+    const text = document.getElementById('loadingMessage');
+    const button = document.getElementById('continueFallback');
+    document.documentElement.classList.add('no-webgl');
+    document.body.classList.add('no-webgl');
+    if (text) text.textContent = message || 'The 3D scene could not start in this browser. You can still browse the portfolio below.';
+    if (screen) { screen.classList.add('is-error'); screen.setAttribute('role', 'alert'); }
+    if (button) button.hidden = false;
+  };
+  document.getElementById('continueFallback')?.addEventListener('click', function () {
+    const screen = document.getElementById('loadingScreen');
+    if (screen) { screen.classList.add('is-hidden'); screen.setAttribute('aria-hidden', 'true'); }
+  });
+  window.addEventListener('error', function (event) {
+    if (!document.body.classList.contains('scene-ready') && event && event.message) {
+      window.portfolioBootError('The 3D scene could not finish loading. You can still browse the portfolio below.');
+    }
+  });
+</script>
+<script type="module" src="app.js" onerror="window.portfolioBootError && window.portfolioBootError('The 3D engine could not be downloaded. Check your connection or continue with the text portfolio below.')"></script>
 </body></html>
