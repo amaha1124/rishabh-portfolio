@@ -62,3 +62,10 @@ Mobile interaction update: mobile directional pads are removed. Swipe vertically
 The 3D planet spheres now use image-based equirectangular surface maps instead of generated canvas patterns. The spheres, lighting, camera, desktop top-view control, and slow axial rotation remain in place. If a texture host is unavailable, the app falls back to its generated surface so the scene can still render.
 
 Planet surface textures: Solar System Scope, https://www.solarsystemscope.com/textures/ — licensed under Creative Commons Attribution 4.0 International (CC BY 4.0). The texture pack states that its maps are based on spacecraft imagery and elevation data; some gas-giant maps are representative rather than current photographs. Credit: Solar System Scope.
+
+## v7.2 planetary rendering corrections
+
+- Planetary texture URLs now use the verified `play.solarsystemscope.com` texture download host (the previous `cdn.solarsystemscope.com` host was the cause of the texture requests failing in this build).
+- Each planet assembly now rotates independently around its own local axis using frame delta time. This rotates the surface, atmosphere and ring assembly together instead of rotating only the first sphere mesh.
+- Procedural canvas maps remain assigned immediately and are retained if an image request fails or returns an invalid image.
+- Solar System Scope planetary texture maps are distributed under CC BY 4.0. Source: https://www.solarsystemscope.com/textures/ .

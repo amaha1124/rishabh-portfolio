@@ -97,12 +97,12 @@ function canvasTexture(base, accent, mode = 'bands') {
 const textureLoader = new THREE.TextureLoader();
 textureLoader.setCrossOrigin('anonymous');
 const planetTextureUrls = {
-  Earth: 'https://cdn.solarsystemscope.com/textures/download/2k_earth_daymap.jpg',
-  Moon: 'https://cdn.solarsystemscope.com/textures/download/2k_moon.jpg',
-  Saturn: 'https://cdn.solarsystemscope.com/textures/download/2k_saturn.jpg',
-  Mars: 'https://cdn.solarsystemscope.com/textures/download/2k_mars.jpg',
-  Ice: 'https://cdn.solarsystemscope.com/textures/download/2k_neptune.jpg',
-  Portal: 'https://cdn.solarsystemscope.com/textures/download/2k_jupiter.jpg'
+  Earth: 'https://play.solarsystemscope.com/textures/download/2k_earth_daymap.jpg',
+  Moon: 'https://play.solarsystemscope.com/textures/download/2k_moon.jpg',
+  Saturn: 'https://play.solarsystemscope.com/textures/download/2k_saturn.jpg',
+  Mars: 'https://play.solarsystemscope.com/textures/download/2k_mars.jpg',
+  Ice: 'https://play.solarsystemscope.com/textures/download/2k_neptune.jpg',
+  Portal: 'https://play.solarsystemscope.com/textures/download/2k_jupiter.jpg'
 };
 function loadPlanetTexture(name, fallback, material) {
   const url = planetTextureUrls[name];
@@ -112,10 +112,19 @@ function loadPlanetTexture(name, fallback, material) {
   material.needsUpdate = true;
   if (!url) return;
   textureLoader.load(url, loaded => {
+    if (!loaded || !loaded.image || !loaded.image.width || !loaded.image.height) {
+      console.warn(`Invalid planetary texture for ${name}; keeping procedural fallback.`);
+      material.map = fallback;
+      material.needsUpdate = true;
+      return;
+    }
     loaded.colorSpace = THREE.SRGBColorSpace;
     loaded.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 8);
+    loaded.wrapS = THREE.RepeatWrapping;
+    loaded.wrapT = THREE.ClampToEdgeWrapping;
     material.map = loaded;
     material.needsUpdate = true;
+    console.info(`Loaded real planetary texture: ${name}`, url);
   }, undefined, error => {
     console.warn(`Planet texture unavailable for ${name}; keeping procedural fallback.`, error);
     material.map = fallback;
@@ -315,11 +324,12 @@ function animate() {
     starColors[offset + 2] = baseStarColors[offset + 2] * twinkle;
   }
   starGeometry.attributes.color.needsUpdate = true;
+  // Rotate each complete planetary assembly around its own local axis. Using delta-based
+  // increments avoids coupling rotation to camera movement or a shared absolute angle.
+  // Speeds are intentionally visible in a portfolio scene while remaining restrained.
+  const axialSpinRates = [0.075, 0.035, 0.055, 0.065, 0.045, 0.085];
   planets.forEach((planet, index) => {
-    // Slow but clearly perceptible axial rotation, independent of camera movement.
-    const spin = [0.055, 0.042, 0.032, 0.048, 0.036, 0.044][index];
-    // Set rotation from elapsed time so every planet spins continuously and independently.
-    planet.mesh.rotation.y = elapsed * spin;
+    planet.group.rotation.y += delta * axialSpinRates[index];
   });
   updateChapter();
   renderer.render(scene, camera);
