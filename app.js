@@ -1,4 +1,7 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import * as THREE from 'three';
+
+// Do not initialize WebGL if the lightweight fallback was selected while this chunk downloaded.
+if (!document.body.classList.contains('no-webgl')) {
 
 // Continuous free-flight portfolio: no page-by-page snapping.
 const container = document.querySelector('#scene');
@@ -16,24 +19,23 @@ let prefersReducedMotion = reducedMotionQuery.matches;
 reducedMotionQuery.addEventListener?.('change', event => { prefersReducedMotion = event.matches; });
 let renderer;
 try {
-  renderer = new THREE.WebGLRenderer({ antialias: !isSmallScreen, alpha: false, powerPreference: 'high-performance' });
+  renderer = new THREE.WebGLRenderer({ antialias: !isLowPower, alpha: false, powerPreference: 'high-performance' });
 } catch (error) {
   window.portfolioBootError?.('WebGL is unavailable or disabled in this browser. You can still browse the portfolio in a simplified layout below.');
   throw error;
 }
-renderer.setPixelRatio(Math.min(devicePixelRatio || 1, isSmallScreen ? 1.25 : isLowPower ? 1.4 : 1.65));
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, isSmallScreen ? 1 : isLowPower ? 1.2 : 1.5));
 renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
-renderer.shadowMap.enabled = !isLowPower;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled = false;
 container.appendChild(renderer.domElement);
 
 scene.add(new THREE.HemisphereLight(0x9aadd0, 0x080b18, 0.34));
 const keyLight = new THREE.DirectionalLight(0xffe7cf, 2.25);
 keyLight.position.set(-18, 18, 28);
-keyLight.castShadow = !isLowPower;
+keyLight.castShadow = false;
 scene.add(keyLight);
 const fillLight = new THREE.PointLight(0x526fbd, 32, 420);
 fillLight.position.set(20, -8, -35);
@@ -41,7 +43,7 @@ scene.add(fillLight);
 
 // Deep star field.
 const starGeometry = new THREE.BufferGeometry();
-const starCount = isSmallScreen ? 1500 : isLowPower ? 2200 : 3200;
+const starCount = isSmallScreen ? 1200 : isLowPower ? 1800 : 2600;
 const starPositions = new Float32Array(starCount * 3);
 const starColors = new Float32Array(starCount * 3);
 const starTwinklePhases = new Float32Array(starCount);
@@ -144,12 +146,11 @@ function makePlanet({ name, radius, position, base, accent, mode = 'bands', roug
   const group = new THREE.Group(); group.position.set(...position); scene.add(group);
   const fallbackTexture = canvasTexture(base, accent, mode);
   const material = new THREE.MeshStandardMaterial({ map: fallbackTexture, color: 0xffffff, roughness: rough, metalness: 0.015 });
-  loadPlanetTexture(name, fallbackTexture, material);
-  const mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 96, 64), material); group.add(mesh);
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 64, 48), material); group.add(mesh);
   const atmosphereColor = name === 'Earth' ? 0x69bfff : name === 'Mars' ? 0xe98a65 : name === 'Ice' ? 0x75d9ef : name === 'Portal' ? 0x9d8aff : 0xc5d2e6;
-  const atmosphere = new THREE.Mesh(new THREE.SphereGeometry(radius * 1.012, 64, 48), new THREE.MeshBasicMaterial({ color: atmosphereColor, transparent: true, opacity: name === 'Earth' ? 0.075 : 0.035, blending: THREE.AdditiveBlending, side: THREE.BackSide, depthWrite: false }));
+  const atmosphere = new THREE.Mesh(new THREE.SphereGeometry(radius * 1.012, 48, 32), new THREE.MeshBasicMaterial({ color: atmosphereColor, transparent: true, opacity: name === 'Earth' ? 0.075 : 0.035, blending: THREE.AdditiveBlending, side: THREE.BackSide, depthWrite: false }));
   group.add(atmosphere);
-  const outerGlow = new THREE.Mesh(new THREE.SphereGeometry(radius * 1.075, 48, 32), new THREE.MeshBasicMaterial({ color: atmosphereColor, transparent: true, opacity: name === 'Earth' ? 0.055 : name === 'Portal' ? 0.075 : 0.025, blending: THREE.AdditiveBlending, side: THREE.BackSide, depthWrite: false }));
+  const outerGlow = new THREE.Mesh(new THREE.SphereGeometry(radius * 1.075, 40, 28), new THREE.MeshBasicMaterial({ color: atmosphereColor, transparent: true, opacity: name === 'Earth' ? 0.055 : name === 'Portal' ? 0.075 : 0.025, blending: THREE.AdditiveBlending, side: THREE.BackSide, depthWrite: false }));
   group.add(outerGlow);
   if (ring) {
     const ringMesh = new THREE.Mesh(new THREE.RingGeometry(radius * 1.28, radius * 1.85, 160), new THREE.MeshBasicMaterial({ color: ringColor, side: THREE.DoubleSide, transparent: true, opacity: 0.42 }));
@@ -157,7 +158,7 @@ function makePlanet({ name, radius, position, base, accent, mode = 'bands', roug
     const outerRing = new THREE.Mesh(new THREE.RingGeometry(radius * 1.9, radius * 2.03, 160), new THREE.MeshBasicMaterial({ color: ringColor, side: THREE.DoubleSide, transparent: true, opacity: 0.13 }));
     outerRing.rotation.copy(ringMesh.rotation); group.add(outerRing);
   }
-  return { group, mesh };
+  return { group, mesh, name, fallbackTexture, material, textureRequested: false };
 }
 const planets = [
   makePlanet({ name: 'Earth', radius: 5.1, position: [8, 1, -14], base: '#16446b', accent: '#3f9b9d', mode: 'earth' }),
@@ -577,17 +578,21 @@ function animate() {
   if (planets[5] && planets[5].group.children[2]) {
     planets[5].group.children[2].material.opacity = 0.055 + finalApproach * (0.025 + portalPulse * 0.035);
   }
+  // Load each real surface map only as the camera approaches that planet.
+  // Procedural surfaces are already present, so first paint never waits for image downloads.
+  const textureLoadRange = isSmallScreen ? 62 : 74;
+  for (const planet of planets) {
+    if (!planet.textureRequested && Math.abs(camera.position.z - planet.group.position.z) < textureLoadRange) {
+      planet.textureRequested = true;
+      loadPlanetTexture(planet.name, planet.fallbackTexture, planet.material);
+    }
+  }
   updateChapter();
   renderer.render(scene, camera);
   if (!hasRenderedOnce) {
     hasRenderedOnce = true;
     document.body.classList.add('scene-ready');
-    const loadingScreen = document.querySelector('#loadingScreen');
-    if (loadingScreen) {
-      loadingScreen.classList.add('is-hidden');
-      loadingScreen.setAttribute('aria-hidden', 'true');
-      window.setTimeout(() => loadingScreen.remove(), 750);
-    }
+    window.portfolioSceneReady?.();
   }
   animationFrameId = requestAnimationFrame(animate);
 }
@@ -621,6 +626,7 @@ window.addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
   const mobile = matchMedia('(max-width: 760px)').matches;
   const lowPower = mobile || matchMedia('(max-width: 1100px)').matches;
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, mobile ? 1.25 : lowPower ? 1.4 : 1.65));
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, mobile ? 1 : lowPower ? 1.2 : 1.5));
   renderer.setSize(innerWidth, innerHeight);
 });
+}
