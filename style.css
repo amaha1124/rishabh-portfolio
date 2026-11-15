@@ -5,3 +5,6 @@
 .scene-controls button{width:34px;height:34px;border:1px solid #8ce9e066;border-radius:50%;background:#071020bb;color:#8ce9e0;font:14px var(--mono);cursor:pointer;backdrop-filter:blur(8px)}
 .scene-controls button:hover{background:#8ce9e0;color:#06101c}
 @media(max-width:760px){.scene-controls{right:16px;bottom:10%}.scene-controls button{width:38px;height:38px}}
+
+.bottom-hint{right:5vw;bottom:4%;font-size:7px;letter-spacing:.12em}.bottom-hint .mobile-hint{display:none}.hud-right #soundBtn{padding:8px 10px;border:1px solid #8ce9e044;border-radius:2px;background:#07102088}.hud-right #soundBtn:hover{background:#8ce9e0;color:#06101c}
+@media(max-width:760px){.bottom-hint{left:18px;right:auto;bottom:3%;font-size:6px}.bottom-hint .desktop-hint{display:none}.bottom-hint .mobile-hint{display:inline}.scene-controls{bottom:10%}}

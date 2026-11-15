@@ -1,6 +1,6 @@
 # Rishabh Arora — Space Journey Portfolio (3D prototype)
 
-A cinematic, scroll-driven portfolio built as a static site using Three.js. The wheel/swipe input moves between six scenes; the camera travels through a 3D starfield to different planets while the story content changes.
+A cinematic, scroll-driven portfolio built as a static site using Three.js. The wheel/swipe input moves between six scenes; the camera travels through a 3D starfield to different planets while the story content changes. Desktop visitors can use WASD/QE for free-flight movement, the mouse to look around, and left/right arrows to change sectors. An original low-volume ambient synth pad is available from the MUSIC control and starts only after the visitor clicks it.
 
 ## Files
 - `index.html` — content and scene structure
@@ -37,4 +37,4 @@ Three.js is loaded from jsDelivr at runtime, so the first visit requires interne
 - This is an interactive visual prototype, not yet a final polished production site.
 - Test on a mid-range mobile phone and desktop before public launch. WebGL performance varies by device.
 - The scroll experience intentionally advances one scene per wheel/swipe gesture.
-- Sound is not implemented; the UI explicitly indicates sound is off.
+- The ambient soundtrack is synthesized in-browser with Web Audio; it is opt-in and starts only after the visitor clicks MUSIC. Planet motion is intentionally restrained to avoid a screensaver-like feel.

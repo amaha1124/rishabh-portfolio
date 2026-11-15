@@ -6,11 +6,11 @@ const camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.1,1800);
 camera.position.set(0,0,23);
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setSize(innerWidth,innerHeight); renderer.outputColorSpace=THREE.SRGBColorSpace;
-renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.18; container.appendChild(renderer.domElement);
+renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05; renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; container.appendChild(renderer.domElement);
 
-scene.add(new THREE.AmbientLight(0x8296c9,.48));
-const key=new THREE.PointLight(0xffffff,145,500); key.position.set(-18,18,28);scene.add(key);
-const fill=new THREE.PointLight(0x6888ff,70,350);fill.position.set(20,-8,-35);scene.add(fill);
+scene.add(new THREE.HemisphereLight(0x9aadd0,0x080b18,.34));
+const key=new THREE.DirectionalLight(0xffe7cf,2.25); key.position.set(-18,18,28); key.castShadow=true; scene.add(key);
+const fill=new THREE.PointLight(0x526fbd,32,420);fill.position.set(20,-8,-35);scene.add(fill);
 
 const starGeo=new THREE.BufferGeometry(), count=2600, positions=new Float32Array(count*3), colors=new Float32Array(count*3);
 for(let i=0;i<count;i++){const radius=100+Math.random()*650,theta=Math.random()*Math.PI*2,phi=Math.acos(2*Math.random()-1);positions[i*3]=radius*Math.sin(phi)*Math.cos(theta);positions[i*3+1]=radius*Math.sin(phi)*Math.sin(theta);positions[i*3+2]=radius*Math.cos(phi);const c=new THREE.Color().setHSL(.55+Math.random()*.16,.35,.65+Math.random()*.3);colors.set([c.r,c.g,c.b],i*3)}
@@ -28,9 +28,9 @@ function canvasTexture(base,accent,mode='bands'){
 function makePlanet({name,radius,position,base,accent,mode='bands',rough=.9,ring=false,ringColor=0x9cb8d5,tilt=.2}){
  const group=new THREE.Group();group.position.set(...position);scene.add(group);
  const tex=canvasTexture(base,accent,mode);
- const mat=new THREE.MeshStandardMaterial({map:tex,roughness:rough,metalness:.03});
+ const mat=new THREE.MeshStandardMaterial({map:tex,roughness:rough,metalness:.015});
  const mesh=new THREE.Mesh(new THREE.SphereGeometry(radius,96,64),mat);group.add(mesh);
- const cloud=new THREE.Mesh(new THREE.SphereGeometry(radius*1.006,64,48),new THREE.MeshStandardMaterial({color:0xddeeff,transparent:true,opacity:name==='Earth'?.09:.035,roughness:1,wireframe:false}));group.add(cloud);
+ const cloud=new THREE.Mesh(new THREE.SphereGeometry(radius*1.006,64,48),new THREE.MeshStandardMaterial({color:0xddeeff,transparent:true,opacity:name==='Earth'?.025:.008,roughness:1,wireframe:false}));group.add(cloud);
  if(ring){const ringMesh=new THREE.Mesh(new THREE.RingGeometry(radius*1.28,radius*1.85,160),new THREE.MeshBasicMaterial({color:ringColor,side:THREE.DoubleSide,transparent:true,opacity:.42}));ringMesh.rotation.x=Math.PI/2.35;ringMesh.rotation.y=tilt;group.add(ringMesh);const ring2=new THREE.Mesh(new THREE.RingGeometry(radius*1.9,radius*2.03,160),new THREE.MeshBasicMaterial({color:ringColor,side:THREE.DoubleSide,transparent:true,opacity:.13}));ring2.rotation.copy(ringMesh.rotation);group.add(ring2)}
  const glow=new THREE.Mesh(new THREE.SphereGeometry(radius*1.035,48,32),new THREE.MeshBasicMaterial({color:accent==='blue'?0x4b8ecb:0x9b83db,transparent:true,opacity:.035,side:THREE.BackSide}));group.add(glow);
  return {group,mesh,cloud};
@@ -44,7 +44,7 @@ const planets=[
  makePlanet({name:'Portal',radius:5.7,position:[0,0,-232],base:'#4b3b83',accent:'#2d6386',mode:'bands',ring:true,ringColor:0x9e91ff})
 ];
 const nebulae=[];
-for(let i=0;i<18;i++){const geo=new THREE.SphereGeometry(2+Math.random()*6,16,12);const m=new THREE.MeshBasicMaterial({color:[0x443a8e,0x145c70,0x753d72][i%3],transparent:true,opacity:.045,wireframe:true});const o=new THREE.Mesh(geo,m);o.position.set((Math.random()-.5)*90,(Math.random()-.5)*60,-Math.random()*260);scene.add(o);nebulae.push(o)}
+for(let i=0;i<9;i++){const geo=new THREE.SphereGeometry(3+Math.random()*7,20,16);const m=new THREE.MeshBasicMaterial({color:[0x443a8e,0x145c70,0x753d72][i%3],transparent:true,opacity:.018,wireframe:false});const o=new THREE.Mesh(geo,m);o.position.set((Math.random()-.5)*110,(Math.random()-.5)*70,-Math.random()*260);scene.add(o);nebulae.push(o)}
 const stops=[
  {cam:[0,0,23],look:[0,0,-14],planet:0},
  {cam:[-1,0,-35],look:[-9,0,-55],planet:1},
@@ -58,28 +58,54 @@ let wheelAccumulator=0,wheelResetTimer=null,lastWheelMove=0;
 const chapters=[...document.querySelectorAll('.chapter')],dots=[...document.querySelectorAll('.dots button')];
 const names=['DEEP SPACE','THE ORIGIN','SYSTEMS PLANET','FIELD MISSIONS','THE NEXT FRONTIER','OPEN CHANNEL'];
 function go(n){n=Math.max(0,Math.min(5,n));if(n===current||transition)return;transition=true;current=n;targetCam.set(...stops[n].cam);targetLook.set(...stops[n].look);chapters.forEach((c,i)=>c.classList.toggle('active',i===n));dots.forEach((d,i)=>d.classList.toggle('selected',i===n));document.querySelector('#sectorLabel').textContent=`SECTOR 0${n} · ${names[n]}`;document.querySelector('#captionNumber').textContent=`0${n}`;document.querySelector('#captionName').textContent=names[n];document.querySelector('#progress').style.width=`${n/5*100}%`;setTimeout(()=>transition=false,850)}
-// Accumulate small trackpad deltas; a single mouse-wheel notch also advances one scene.
+// Scroll advances chapters. WASD provides free-flight movement within each sector.
+let wheelAccumulator=0,wheelResetTimer=null,lastWheelMove=0;
+const keys=new Set(), flightOffset=new THREE.Vector3(), flightVelocity=new THREE.Vector3();
+const pointerLook=new THREE.Vector2(), pointerTarget=new THREE.Vector2();
+const keyMap={KeyW:'forward',KeyS:'back',KeyA:'left',KeyD:'right',KeyQ:'down',KeyE:'up'};
 window.addEventListener('wheel',e=>{
   e.preventDefault();
   if(transition || performance.now()-lastWheelMove<850)return;
-  wheelAccumulator += e.deltaY;
-  clearTimeout(wheelResetTimer);
+  wheelAccumulator += e.deltaY; clearTimeout(wheelResetTimer);
   wheelResetTimer=setTimeout(()=>wheelAccumulator=0,180);
-  if(Math.abs(wheelAccumulator)>=24){
-    const direction=wheelAccumulator>0?1:-1;
-    wheelAccumulator=0;lastWheelMove=performance.now();go(current+direction);
-  }
+  if(Math.abs(wheelAccumulator)>=24){const direction=wheelAccumulator>0?1:-1;wheelAccumulator=0;lastWheelMove=performance.now();go(current+direction)}
 },{passive:false});
-window.addEventListener('keydown',e=>{if(['ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();go(current+1)}else if(['ArrowUp','PageUp'].includes(e.key)){e.preventDefault();go(current-1)}else if(e.key==='Home'){e.preventDefault();go(0)}else if(e.key==='End'){e.preventDefault();go(5)}});
+window.addEventListener('keydown',e=>{
+  if(keyMap[e.code]){keys.add(keyMap[e.code]);e.preventDefault();return;}
+  if(['ArrowRight','ArrowDown','PageDown'].includes(e.key)){e.preventDefault();go(current+1)}
+  else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();go(current-1)}
+  else if(e.key==='Home'){e.preventDefault();go(0)}else if(e.key==='End'){e.preventDefault();go(5)}
+});
+window.addEventListener('keyup',e=>{if(keyMap[e.code])keys.delete(keyMap[e.code])});
+window.addEventListener('blur',()=>keys.clear());
+window.addEventListener('pointermove',e=>{pointerTarget.x=(e.clientX/innerWidth-.5)*.12;pointerTarget.y=(e.clientY/innerHeight-.5)*.08});
 window.addEventListener('touchstart',e=>touchY=e.changedTouches[0].clientY,{passive:true});
 window.addEventListener('touchend',e=>{const d=touchY-e.changedTouches[0].clientY;if(Math.abs(d)>30)go(current+(d>0?1:-1))},{passive:true});
 dots.forEach((d,i)=>d.addEventListener('click',()=>go(i)));
 document.querySelector('#prevScene').addEventListener('click',()=>go(current-1));
 document.querySelector('#nextScene').addEventListener('click',()=>go(current+1));
 document.querySelector('#year').textContent=new Date().getFullYear();
-document.querySelector('#soundBtn').addEventListener('click',()=>{document.querySelector('#soundBtn').textContent='SOUND OFF';document.querySelector('#soundBtn').title='Ambient audio can be added in a later iteration.'});
 
+// A quiet, original ambient synth pad. Browsers only start audio after a visitor opts in.
+let audioContext=null, audioNodes=[], soundOn=false;
+const soundBtn=document.querySelector('#soundBtn');
+function startAmbient(){
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
+  audioContext=audioContext||new AudioCtx();audioContext.resume();
+  const master=audioContext.createGain();master.gain.value=.0001;master.connect(audioContext.destination);
+  const filter=audioContext.createBiquadFilter();filter.type='lowpass';filter.frequency.value=520;filter.Q.value=.4;filter.connect(master);
+  [55,82.41,110].forEach((hz,i)=>{const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type='sine';osc.frequency.value=hz;gain.gain.value=[.24,.11,.055][i];osc.connect(gain);gain.connect(filter);osc.start();audioNodes.push(osc,gain)});
+  master.gain.setTargetAtTime(.12,audioContext.currentTime,.9);audioNodes.push(filter,master);
+}
+function stopAmbient(){if(!audioContext)return;const master=audioNodes[audioNodes.length-1];if(master?.gain)master.gain.setTargetAtTime(.0001,audioContext.currentTime,.35);setTimeout(()=>{audioNodes.filter(n=>n instanceof OscillatorNode).forEach(n=>{try{n.stop()}catch{}});audioNodes=[]},1400)}
+soundBtn.addEventListener('click',()=>{soundOn=!soundOn;if(soundOn){startAmbient();soundBtn.textContent='SOUND ON';soundBtn.setAttribute('aria-label','Mute ambient music')}else{stopAmbient();soundBtn.textContent='SOUND OFF';soundBtn.setAttribute('aria-label','Play ambient music')}});
 const clock=new THREE.Clock();
-function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();camera.position.lerp(targetCam,.035);look.lerp(targetLook,.04);camera.lookAt(look);stars.rotation.y=t*.0015;stars.rotation.x=Math.sin(t*.04)*.012;planets.forEach((p,i)=>{p.mesh.rotation.y=t*(i%2?.025:.012);p.cloud.rotation.y=-t*.008;p.group.rotation.z=Math.sin(t*.12+i)*.012});nebulae.forEach((o,i)=>{o.rotation.x=t*.003*(i%3+1);o.rotation.y=t*.002});renderer.render(scene,camera)}
+function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();
+ const speed=keys.has('forward')?1:0,back=keys.has('back')?1:0,left=keys.has('left')?1:0,right=keys.has('right')?1:0,up=keys.has('up')?1:0,down=keys.has('down')?1:0;
+ const desired=new THREE.Vector3(right-left,up-down,back-speed).multiplyScalar(.11);flightVelocity.lerp(desired,.08);flightOffset.add(flightVelocity);flightOffset.x=THREE.MathUtils.clamp(flightOffset.x,-8,8);flightOffset.y=THREE.MathUtils.clamp(flightOffset.y,-5,5);flightOffset.z=THREE.MathUtils.clamp(flightOffset.z,-10,10);
+ const base=new THREE.Vector3(...stops[current].cam);camera.position.lerp(base.add(flightOffset),.045);look.lerp(targetLook,.04);pointerLook.lerp(pointerTarget,.035);camera.lookAt(look.x+pointerLook.x*18,look.y-pointerLook.y*18,look.z);
+ // Keep celestial bodies almost still: only slow axial rotation remains.
+ stars.rotation.y=t*.00012;planets.forEach((p,i)=>{p.mesh.rotation.y=t*(i%2?.0018:.0012)});
+ renderer.render(scene,camera)}
 animate();
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight)});
