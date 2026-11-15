@@ -35,6 +35,7 @@ const starGeometry = new THREE.BufferGeometry();
 const starCount = isSmallScreen ? 1500 : isLowPower ? 2200 : 3200;
 const starPositions = new Float32Array(starCount * 3);
 const starColors = new Float32Array(starCount * 3);
+const starTwinklePhases = new Float32Array(starCount);
 for (let i = 0; i < starCount; i++) {
   const radius = 100 + Math.random() * 650;
   const theta = Math.random() * Math.PI * 2;
@@ -44,10 +45,22 @@ for (let i = 0; i < starCount; i++) {
   starPositions[i * 3 + 2] = radius * Math.cos(phi);
   const color = new THREE.Color().setHSL(0.55 + Math.random() * 0.16, 0.35, 0.65 + Math.random() * 0.3);
   starColors.set([color.r, color.g, color.b], i * 3);
+  starTwinklePhases[i] = Math.random() * Math.PI * 2;
 }
 starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
 starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
-const stars = new THREE.Points(starGeometry, new THREE.PointsMaterial({ size: 0.8, vertexColors: true, transparent: true, opacity: 0.9, sizeAttenuation: true }));
+starGeometry.setAttribute('aTwinklePhase', new THREE.BufferAttribute(starTwinklePhases, 1));
+const starMaterial = new THREE.PointsMaterial({ size: 0.8, vertexColors: true, transparent: true, opacity: 0.9, sizeAttenuation: true, depthWrite: false });
+// Subtle per-star brightness variation: each star twinkles independently, slowly.
+starMaterial.onBeforeCompile = shader => {
+  shader.uniforms.uTwinkleTime = { value: 0 };
+  shader.vertexShader = shader.vertexShader.replace('void main() {', 'attribute float aTwinklePhase;\nvarying float vTwinkle;\nuniform float uTwinkleTime;\nvoid main() {');
+  shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n  vTwinkle = 0.78 + 0.22 * sin(uTwinkleTime * 1.15 + aTwinklePhase);');
+  shader.fragmentShader = shader.fragmentShader.replace('void main() {', 'varying float vTwinkle;\nvoid main() {');
+  shader.fragmentShader = shader.fragmentShader.replace('#include <output_fragment>', '#include <output_fragment>\n  gl_FragColor.rgb *= vTwinkle;\n  gl_FragColor.a *= vTwinkle;');
+  starMaterial.userData.twinkleUniform = shader.uniforms.uTwinkleTime;
+};
+const stars = new THREE.Points(starGeometry, starMaterial);
 scene.add(stars);
 
 function canvasTexture(base, accent, mode = 'bands') {
@@ -72,9 +85,32 @@ function canvasTexture(base, accent, mode = 'bands') {
   ctx.globalAlpha = 1;
   const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; return texture;
 }
+// Real equirectangular planetary surface maps (Solar System Scope, CC BY 4.0).
+// TextureLoader keeps the 3D spheres, lighting and slow axial rotation, but replaces
+// the synthetic canvas-painted surfaces with image-based planetary maps.
+const textureLoader = new THREE.TextureLoader();
+const planetTextureUrls = {
+  Earth: 'https://www.solarsystemscope.com/textures/download/2k_earth_daymap.jpg',
+  Moon: 'https://www.solarsystemscope.com/textures/download/2k_moon.jpg',
+  Saturn: 'https://www.solarsystemscope.com/textures/download/2k_saturn.jpg',
+  Mars: 'https://www.solarsystemscope.com/textures/download/2k_mars.jpg',
+  Ice: 'https://www.solarsystemscope.com/textures/download/2k_neptune.jpg',
+  Portal: 'https://www.solarsystemscope.com/textures/download/2k_jupiter.jpg'
+};
+function loadPlanetTexture(name, fallback) {
+  const url = planetTextureUrls[name];
+  if (!url) return fallback;
+  const texture = textureLoader.load(url, loaded => {
+    loaded.colorSpace = THREE.SRGBColorSpace;
+    loaded.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 8);
+  }, undefined, error => console.warn(`Planet texture unavailable for ${name}; using fallback surface.`, error));
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
 function makePlanet({ name, radius, position, base, accent, mode = 'bands', rough = 0.9, ring = false, ringColor = 0x9cb8d5, tilt = 0.2 }) {
   const group = new THREE.Group(); group.position.set(...position); scene.add(group);
-  const material = new THREE.MeshStandardMaterial({ map: canvasTexture(base, accent, mode), roughness: rough, metalness: 0.015 });
+  const fallbackTexture = canvasTexture(base, accent, mode);
+  const material = new THREE.MeshStandardMaterial({ map: loadPlanetTexture(name, fallbackTexture), roughness: rough, metalness: 0.015 });
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 96, 64), material); group.add(mesh);
   const atmosphere = new THREE.Mesh(new THREE.SphereGeometry(radius * 1.006, 64, 48), new THREE.MeshStandardMaterial({ color: 0xddeeff, transparent: true, opacity: name === 'Earth' ? 0.025 : 0.008, roughness: 1 })); group.add(atmosphere);
   if (ring) {
@@ -123,10 +159,20 @@ const pressed = new Set();
 const keyBindings = { KeyW: 'forward', KeyS: 'back', KeyA: 'left', KeyD: 'right', KeyQ: 'down', KeyE: 'up' };
 const velocity = new THREE.Vector3();
 let yaw = 0, pitch = 0;
+let topViewEnabled = false;
+let pitchBeforeTopView = 0;
+let topViewTargetPitch = 0;
+const desktopTopView = !isSmallScreen;
 let dragging = false, lastPointerX = 0, lastPointerY = 0;
 const clock = new THREE.Clock();
 let lastScrollAt = 0;
 window.addEventListener('keydown', event => {
+  if (desktopTopView && event.code === 'KeyT') {
+    topViewEnabled = !topViewEnabled;
+    if (topViewEnabled) { pitchBeforeTopView = pitch; topViewTargetPitch = 1.48; }
+    else { topViewTargetPitch = pitchBeforeTopView; }
+    event.preventDefault();
+  }
   if (keyBindings[event.code]) { pressed.add(keyBindings[event.code]); event.preventDefault(); }
   if (['ArrowRight', 'ArrowDown'].includes(event.key)) { velocity.z -= 12; event.preventDefault(); }
   if (['ArrowLeft', 'ArrowUp'].includes(event.key)) { velocity.z += 12; event.preventDefault(); }
@@ -138,6 +184,14 @@ window.addEventListener('blur', () => { pressed.clear(); dragging = false; });
 // Wheel/trackpad input changes ship velocity proportionally, so the visitor chooses the pace.
 window.addEventListener('wheel', event => {
   event.preventDefault();
+  // On desktop, Shift + trackpad/mouse-wheel tilts the camera toward a top-down view.
+  // Ordinary scrolling continues to control forward flight. Mobile behaviour is untouched.
+  if (desktopTopView && event.shiftKey) {
+    topViewTargetPitch = THREE.MathUtils.clamp(topViewTargetPitch - event.deltaY * 0.0025, -0.15, 1.48);
+    topViewEnabled = topViewTargetPitch > 0.2;
+    lastScrollAt = performance.now();
+    return;
+  }
   const scale = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? innerHeight : 1;
   velocity.z -= event.deltaY * scale * 0.075;
   velocity.x += event.deltaX * scale * 0.055;
@@ -151,7 +205,8 @@ window.addEventListener('pointerdown', event => { if (event.pointerType === 'tou
 window.addEventListener('pointermove', event => {
   if (!dragging || event.pointerType === 'touch') return;
   const dx = event.clientX - lastPointerX, dy = event.clientY - lastPointerY;
-  yaw -= dx * 0.0032; pitch = THREE.MathUtils.clamp(pitch - dy * 0.0025, -1.15, 1.15);
+  yaw -= dx * 0.0032; pitch = THREE.MathUtils.clamp(pitch - dy * 0.0025, -1.15, 1.48);
+  if (desktopTopView) topViewTargetPitch = pitch;
   lastPointerX = event.clientX; lastPointerY = event.clientY;
 });
 window.addEventListener('pointerup', () => { dragging = false; });
@@ -216,6 +271,7 @@ soundButton?.addEventListener('click', async () => {
 function animate() {
   requestAnimationFrame(animate);
   const delta = Math.min(clock.getDelta(), 0.04), elapsed = clock.elapsedTime;
+  if (desktopTopView) pitch = THREE.MathUtils.damp(pitch, topViewTargetPitch, 3.2, delta);
   const forward = new THREE.Vector3(Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), -Math.cos(yaw) * Math.cos(pitch));
   const right = new THREE.Vector3(Math.cos(yaw), 0, Math.sin(yaw));
   const desired = new THREE.Vector3();
@@ -234,6 +290,7 @@ function animate() {
   camera.position.z = THREE.MathUtils.clamp(camera.position.z, -290, 35);
   camera.lookAt(camera.position.clone().add(forward));
   stars.rotation.y = elapsed * 0.00012;
+  if (starMaterial.userData.twinkleUniform) starMaterial.userData.twinkleUniform.value = elapsed;
   planets.forEach((planet, index) => {
     // Give the planets a visible, slow axial spin; rotate the whole group gently
     // so rings and atmospheric layers move with the planet instead of staying static.

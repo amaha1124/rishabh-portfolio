@@ -49,3 +49,16 @@ Mobile interaction update: mobile directional pads are removed. Swipe vertically
 - Touch pointer events no longer enter the mouse-look rotation handler.
 - One-finger scene swipes translate the camera through 3D space: upward along the current view direction, downward in reverse, and left/right by strafing.
 - Vertical swipes starting inside scrollable content panels remain native panel scrolling.
+
+
+## Desktop top-down view (v6.7)
+- Press `T` to toggle a top-down camera angle; press `T` again to restore the previous view.
+- Hold `Shift` while using the mouse wheel or trackpad scroll to smoothly tilt toward/away from the top-down view.
+- Ordinary scrolling remains forward/backward flight. Mouse drag can also look around.
+- This feature is desktop-only; mobile swipe navigation and mobile layout are unchanged.
+
+## Planet surface imagery
+
+The 3D planet spheres now use image-based equirectangular surface maps instead of generated canvas patterns. The spheres, lighting, camera, desktop top-view control, and slow axial rotation remain in place. If a texture host is unavailable, the app falls back to its generated surface so the scene can still render.
+
+Planet surface textures: Solar System Scope, https://www.solarsystemscope.com/textures/ — licensed under Creative Commons Attribution 4.0 International (CC BY 4.0). The texture pack states that its maps are based on spacecraft imagery and elevation data; some gas-giant maps are representative rather than current photographs. Credit: Solar System Scope.
