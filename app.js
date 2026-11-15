@@ -50,16 +50,10 @@ for (let i = 0; i < starCount; i++) {
 starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
 starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
 starGeometry.setAttribute('aTwinklePhase', new THREE.BufferAttribute(starTwinklePhases, 1));
-const starMaterial = new THREE.PointsMaterial({ size: 0.8, vertexColors: true, transparent: true, opacity: 0.9, sizeAttenuation: true, depthWrite: false });
-// Subtle per-star brightness variation: each star twinkles independently, slowly.
-starMaterial.onBeforeCompile = shader => {
-  shader.uniforms.uTwinkleTime = { value: 0 };
-  shader.vertexShader = shader.vertexShader.replace('void main() {', 'attribute float aTwinklePhase;\nvarying float vTwinkle;\nuniform float uTwinkleTime;\nvoid main() {');
-  shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n  vTwinkle = 0.78 + 0.22 * sin(uTwinkleTime * 1.15 + aTwinklePhase);');
-  shader.fragmentShader = shader.fragmentShader.replace('void main() {', 'varying float vTwinkle;\nvoid main() {');
-  shader.fragmentShader = shader.fragmentShader.replace('#include <output_fragment>', '#include <output_fragment>\n  gl_FragColor.rgb *= vTwinkle;\n  gl_FragColor.a *= vTwinkle;');
-  starMaterial.userData.twinkleUniform = shader.uniforms.uTwinkleTime;
-};
+const starMaterial = new THREE.PointsMaterial({ size: 1.05, vertexColors: true, transparent: true, opacity: 0.96, sizeAttenuation: true, depthWrite: false });
+// Twinkle in the CPU-updated vertex colours rather than patching Three.js shaders.
+// This is deliberately simple and reliable across desktop and mobile WebGL drivers.
+const baseStarColors = starColors.slice();
 const stars = new THREE.Points(starGeometry, starMaterial);
 scene.add(stars);
 
@@ -89,6 +83,7 @@ function canvasTexture(base, accent, mode = 'bands') {
 // TextureLoader keeps the 3D spheres, lighting and slow axial rotation, but replaces
 // the synthetic canvas-painted surfaces with image-based planetary maps.
 const textureLoader = new THREE.TextureLoader();
+textureLoader.setCrossOrigin('anonymous');
 const planetTextureUrls = {
   Earth: 'https://www.solarsystemscope.com/textures/download/2k_earth_daymap.jpg',
   Moon: 'https://www.solarsystemscope.com/textures/download/2k_moon.jpg',
@@ -97,20 +92,29 @@ const planetTextureUrls = {
   Ice: 'https://www.solarsystemscope.com/textures/download/2k_neptune.jpg',
   Portal: 'https://www.solarsystemscope.com/textures/download/2k_jupiter.jpg'
 };
-function loadPlanetTexture(name, fallback) {
+function loadPlanetTexture(name, fallback, material) {
   const url = planetTextureUrls[name];
-  if (!url) return fallback;
-  const texture = textureLoader.load(url, loaded => {
+  // The procedural surface is applied immediately, so a slow, blocked or offline
+  // texture request can never leave a black planet on screen.
+  material.map = fallback;
+  material.needsUpdate = true;
+  if (!url) return;
+  textureLoader.load(url, loaded => {
     loaded.colorSpace = THREE.SRGBColorSpace;
     loaded.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 8);
-  }, undefined, error => console.warn(`Planet texture unavailable for ${name}; using fallback surface.`, error));
-  texture.colorSpace = THREE.SRGBColorSpace;
-  return texture;
+    material.map = loaded;
+    material.needsUpdate = true;
+  }, undefined, error => {
+    console.warn(`Planet texture unavailable for ${name}; keeping procedural fallback.`, error);
+    material.map = fallback;
+    material.needsUpdate = true;
+  });
 }
 function makePlanet({ name, radius, position, base, accent, mode = 'bands', rough = 0.9, ring = false, ringColor = 0x9cb8d5, tilt = 0.2 }) {
   const group = new THREE.Group(); group.position.set(...position); scene.add(group);
   const fallbackTexture = canvasTexture(base, accent, mode);
-  const material = new THREE.MeshStandardMaterial({ map: loadPlanetTexture(name, fallbackTexture), roughness: rough, metalness: 0.015 });
+  const material = new THREE.MeshStandardMaterial({ map: fallbackTexture, color: 0xffffff, roughness: rough, metalness: 0.015 });
+  loadPlanetTexture(name, fallbackTexture, material);
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 96, 64), material); group.add(mesh);
   const atmosphere = new THREE.Mesh(new THREE.SphereGeometry(radius * 1.006, 64, 48), new THREE.MeshStandardMaterial({ color: 0xddeeff, transparent: true, opacity: name === 'Earth' ? 0.025 : 0.008, roughness: 1 })); group.add(atmosphere);
   if (ring) {
@@ -290,13 +294,19 @@ function animate() {
   camera.position.z = THREE.MathUtils.clamp(camera.position.z, -290, 35);
   camera.lookAt(camera.position.clone().add(forward));
   stars.rotation.y = elapsed * 0.00012;
-  if (starMaterial.userData.twinkleUniform) starMaterial.userData.twinkleUniform.value = elapsed;
+  // Independent, restrained brightness variation makes stars visibly twinkle.
+  for (let i = 0; i < starCount; i++) {
+    const twinkle = 0.72 + 0.28 * (0.5 + 0.5 * Math.sin(elapsed * 1.35 + starTwinklePhases[i]));
+    const offset = i * 3;
+    starColors[offset] = baseStarColors[offset] * twinkle;
+    starColors[offset + 1] = baseStarColors[offset + 1] * twinkle;
+    starColors[offset + 2] = baseStarColors[offset + 2] * twinkle;
+  }
+  starGeometry.attributes.color.needsUpdate = true;
   planets.forEach((planet, index) => {
-    // Give the planets a visible, slow axial spin; rotate the whole group gently
-    // so rings and atmospheric layers move with the planet instead of staying static.
-    const spin = index % 2 ? 0.018 : 0.013;
+    // Slow but clearly perceptible axial rotation, independent of camera movement.
+    const spin = [0.032, 0.022, 0.018, 0.028, 0.016, 0.024][index];
     planet.mesh.rotation.y += delta * spin;
-    planet.group.rotation.y += delta * 0.0035;
   });
   updateChapter();
   renderer.render(scene, camera);
