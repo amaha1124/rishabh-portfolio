@@ -6,7 +6,7 @@ if (!container) throw new Error('Missing #scene container');
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x030611);
-scene.fog = new THREE.FogExp2(0x030611, 0.0018);
+// Keep the deep-space background crisp; avoid distance fog that softens the starfield.
 const camera = new THREE.PerspectiveCamera(matchMedia('(max-width: 760px)').matches ? 58 : 48, innerWidth / innerHeight, 0.1, 1800);
 camera.position.set(0, 0, 23);
 const isSmallScreen = matchMedia('(max-width: 760px)').matches;
@@ -158,31 +158,6 @@ const planets = [
   makePlanet({ name: 'Ice', radius: 5.2, position: [9, 0, -185], base: '#77b7ca', accent: '#345a83', mode: 'ice', ring: true, ringColor: 0x91c9db }),
   makePlanet({ name: 'Portal', radius: 5.7, position: [0, 0, -232], base: '#4b3b83', accent: '#2d6386', ring: true, ringColor: 0x9e91ff })
 ];
-// Soft, distant nebula clouds: generated locally so there are no extra image requests.
-function makeNebulaTexture(tint) {
-  const canvas = document.createElement('canvas'); canvas.width = canvas.height = 512;
-  const ctx = canvas.getContext('2d');
-  for (let i = 0; i < 34; i++) {
-    const x = 90 + Math.random() * 332, y = 90 + Math.random() * 332;
-    const radius = 28 + Math.random() * 115;
-    const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
-    gradient.addColorStop(0, `rgba(${tint},${0.025 + Math.random() * 0.035})`);
-    gradient.addColorStop(0.45, `rgba(${tint},0.012)`);
-    gradient.addColorStop(1, `rgba(${tint},0)`);
-    ctx.fillStyle = gradient; ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
-  }
-  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; return texture;
-}
-const nebulae = [];
-const nebulaPalettes = ['112,91,180', '46,111,145', '143,75,111'];
-const nebulaTextures = nebulaPalettes.map(makeNebulaTexture);
-for (let i = 0; i < (isSmallScreen ? 7 : 11); i++) {
-  const material = new THREE.MeshBasicMaterial({ map: nebulaTextures[i % nebulaTextures.length], transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
-  const cloud = new THREE.Mesh(new THREE.PlaneGeometry(75 + Math.random() * 55, 42 + Math.random() * 38), material);
-  cloud.position.set((Math.random() - 0.5) * 100, (Math.random() - 0.5) * 48, -12 - i * 22 - Math.random() * 10);
-  cloud.rotation.z = (Math.random() - 0.5) * 0.7; scene.add(cloud); nebulae.push(cloud);
-}
-
 // Sparse low-poly asteroids sit outside the central flight corridor between chapters.
 const asteroidGeometry = new THREE.DodecahedronGeometry(1, 0);
 const asteroidMaterial = new THREE.MeshStandardMaterial({ color: 0x777783, roughness: 1, metalness: 0.04, flatShading: true });
@@ -453,7 +428,6 @@ function animate() {
   keyLight.intensity = THREE.MathUtils.lerp(2.25, 1.55, journeyDepth);
   fillLight.color.setHSL(0.60 - journeyDepth * 0.12, 0.55, 0.55);
   fillLight.intensity = THREE.MathUtils.lerp(32, 42, journeyDepth);
-  nebulae.forEach((cloud, index) => { cloud.rotation.z += delta * (index % 2 ? 0.0018 : -0.0013); });
   asteroids.rotation.y += delta * 0.006;
   asteroids.rotation.x += delta * 0.0015;
   // The final Jupiter-like portal receives a restrained breathing glow near the contact chapter.
