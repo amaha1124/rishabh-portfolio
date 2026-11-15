@@ -1,8 +1,8 @@
-// Load the lightweight case-study behaviour first. Start the heavy 3D engine separately.
+// Shared non-WebGL interactions are small and available in both modes.
+import './site-ui.js';
 import './case-study.js';
 
+// This module is only requested on desktop or after the visitor explicitly launches 3D on mobile.
 if (!document.body.classList.contains('no-webgl')) {
-  import('./app.js').catch(() => {
-    window.portfolioBootError?.('The 3D renderer could not start. The lightweight portfolio remains available.');
-  });
+  await import('./app.js');
 }

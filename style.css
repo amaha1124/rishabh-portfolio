@@ -199,7 +199,14 @@ body.no-webgl .progress,body.no-webgl .scene-caption,body.no-webgl .bottom-hint,
 body.no-webgl #journey{height:auto;min-height:0;pointer-events:auto}
 body.no-webgl .chapter{position:relative;inset:auto;display:block;min-height:0;padding:92px 8vw 56px;visibility:visible!important;opacity:1!important;border-bottom:1px solid #c5b69a22;transition:none}
 body.no-webgl .copy,body.no-webgl .hero-copy,body.no-webgl .copy.left,body.no-webgl .copy.right,body.no-webgl .contact-copy{position:relative;inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:min(760px,100%)!important;max-width:none;max-height:none;overflow:visible;margin:0 auto;padding:0!important}
-body.no-webgl .world-tag,body.no-webgl .hero-actions,body.no-webgl .hero-foot{display:none}
+body.no-webgl .world-tag{display:none}
+body.no-webgl .hero-actions{display:flex;align-items:center;gap:10px;margin-top:20px}
+body.no-webgl #journeyTourBtn{display:none}
+body.no-webgl .enable-3d-btn{display:inline-flex}
+body.no-webgl .hero-foot{display:block;margin-top:18px}
+body.no-webgl .hero-foot>span{display:none}
+body.no-webgl .hero-foot::after{content:'SCROLL TO EXPLORE';font:8px var(--mono);letter-spacing:.14em;color:#8292b0}
+body.no-webgl .mobile-planet{display:block}
 @media(max-width:760px){.links .copy-email-btn{font-size:7px;padding:10px 11px}.contact-feedback{font-size:7px}}
 @media(prefers-reduced-motion:reduce){.skip-link,.links .copy-email-btn,#scene canvas{transition:none!important}}
 
@@ -299,4 +306,54 @@ body.no-webgl .boot-notice{position:relative;top:auto;left:auto;max-width:760px;
 }
 @media (max-width: 420px) {
   .vignette { background: linear-gradient(180deg, #02040b22, transparent 38%, #02040b44); }
+}
+
+
+/* v8.6: instant mobile reading mode. No WebGL or Three.js download until the visitor opts in. */
+.enable-3d-btn{display:none;appearance:none;align-items:center;gap:14px;padding:12px 15px;border:1px solid #c6a77b88;background:#c6a77b;color:#10131a;font:700 8px var(--mono);letter-spacing:.13em;cursor:pointer}
+.enable-3d-btn:disabled{opacity:.72;cursor:progress}
+.enable-3d-btn:focus-visible{outline:2px solid #fff;outline-offset:4px}
+.mobile-planet{display:none;position:absolute;z-index:1;right:7%;bottom:22px;width:clamp(92px,30vw,150px);aspect-ratio:1;border-radius:50%;pointer-events:none;opacity:.58;
+  background:
+    radial-gradient(ellipse at 30% 42%,#8fbd82 0 8%,transparent 9%),
+    radial-gradient(ellipse at 60% 58%,#7eaa78 0 11%,transparent 12%),
+    radial-gradient(ellipse at 48% 25%,#a4d7df 0 5%,transparent 6%),
+    radial-gradient(circle at 31% 28%,#9fdbe0 0,#4e9daf 20%,#246887 43%,#0b2948 69%,#030916 100%);
+  box-shadow:inset -18px -14px 28px #000c,inset 7px 6px 14px #b7e8ff44,0 0 24px #5598c455,0 0 52px #5598c422;
+}
+.mobile-planet::after{content:'';position:absolute;inset:-8%;border-radius:50%;border:1px solid #7bb5d744;box-shadow:0 0 14px #4f94c322}
+body.no-webgl{background-color:#030611;background-image:
+  radial-gradient(1px 1px at 8% 12%,#edf3ffb8 99%,transparent 100%),
+  radial-gradient(1px 1px at 19% 68%,#edf3ff88 99%,transparent 100%),
+  radial-gradient(1px 1px at 33% 32%,#d4dfffaa 99%,transparent 100%),
+  radial-gradient(1px 1px at 47% 83%,#edf3ff88 99%,transparent 100%),
+  radial-gradient(1px 1px at 61% 17%,#edf3ffb8 99%,transparent 100%),
+  radial-gradient(1px 1px at 76% 58%,#d4dfff99 99%,transparent 100%),
+  radial-gradient(1px 1px at 91% 28%,#edf3ff99 99%,transparent 100%);
+  background-attachment:fixed;
+}
+html.mobile-lite,html.mobile-lite body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
+html.mobile-lite body #scene,html.mobile-lite body .vignette,html.mobile-lite body .grain{display:none}
+html.mobile-lite body .hud{position:sticky;top:0;background:#030611;border-bottom:1px solid #c5b69a22}
+html.mobile-lite body .progress,html.mobile-lite body .scene-caption,html.mobile-lite body .bottom-hint,html.mobile-lite body .scene-controls,html.mobile-lite body .return-top-btn{display:none!important}
+html.mobile-lite body #journey{height:auto;min-height:0;pointer-events:auto}
+html.mobile-lite body .chapter{position:relative;inset:auto;display:block;min-height:0;padding:78px 8vw 48px;visibility:visible!important;opacity:1!important;border-bottom:1px solid #c5b69a22;transition:none}
+html.mobile-lite body .copy,html.mobile-lite body .hero-copy,html.mobile-lite body .copy.left,html.mobile-lite body .copy.right,html.mobile-lite body .contact-copy{position:relative;inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:min(760px,100%)!important;max-width:none;max-height:none;overflow:visible;margin:0 auto;padding:0!important}
+html.mobile-lite body .world-tag{display:none}
+html.mobile-lite body .hero-actions{display:flex;align-items:center;gap:10px;margin-top:20px}
+html.mobile-lite body #journeyTourBtn{display:none}
+html.mobile-lite body .enable-3d-btn{display:inline-flex}
+html.mobile-lite body .hero-foot{display:block;margin-top:18px}
+html.mobile-lite body .hero-foot>span{display:none}
+html.mobile-lite body .hero-foot::after{content:'SCROLL TO EXPLORE';font:8px var(--mono);letter-spacing:.14em;color:#8292b0}
+html.mobile-lite body .mobile-planet{display:block}
+@media(max-width:760px){
+  body.no-webgl .chapter,html.mobile-lite body .chapter{padding:74px 7vw 44px}
+  body.no-webgl .hero-copy,html.mobile-lite body .hero-copy{padding-bottom:132px!important}
+  body.no-webgl .mobile-planet,html.mobile-lite body .mobile-planet{right:7%;bottom:18px;width:112px;opacity:.5}
+  body.no-webgl .hero-copy h1,html.mobile-lite body .hero-copy h1{font-size:clamp(58px,16vw,88px)}
+  body.no-webgl .hero-actions,html.mobile-lite body .hero-actions{margin-top:18px}
+  body.no-webgl .hud-right #sectorLabel,html.mobile-lite body .hud-right #sectorLabel{display:none}
+  body.no-webgl .links,html.mobile-lite body .links{gap:13px;flex-wrap:wrap}
+  body.no-webgl .links a,html.mobile-lite body .links a{font-size:8px}
 }

@@ -1,0 +1,78 @@
+// Lightweight interactions shared by desktop 3D and mobile reading mode.
+const year = document.getElementById('year');
+if (year) year.textContent = String(new Date().getFullYear());
+
+const copyEmailButton = document.getElementById('copyEmailBtn');
+const contactFeedback = document.getElementById('contactFeedback');
+const contactEmail = 'arorarishabh607@gmail.com';
+function fallbackCopyText(value) {
+  const field = document.createElement('textarea');
+  field.value = value;
+  field.setAttribute('readonly', '');
+  field.style.position = 'fixed';
+  field.style.opacity = '0';
+  field.style.pointerEvents = 'none';
+  document.body.appendChild(field);
+  field.select();
+  field.setSelectionRange(0, value.length);
+  const copied = document.execCommand('copy');
+  field.remove();
+  if (!copied) throw new Error('Clipboard copy command was rejected');
+}
+copyEmailButton?.addEventListener('click', async () => {
+  try {
+    if (navigator.clipboard?.writeText && window.isSecureContext) await navigator.clipboard.writeText(contactEmail);
+    else fallbackCopyText(contactEmail);
+    copyEmailButton.textContent = 'COPIED ✓';
+    if (contactFeedback) contactFeedback.textContent = 'Email address copied to clipboard.';
+  } catch (error) {
+    try {
+      fallbackCopyText(contactEmail);
+      copyEmailButton.textContent = 'COPIED ✓';
+      if (contactFeedback) contactFeedback.textContent = 'Email address copied to clipboard.';
+    } catch (fallbackError) {
+      if (contactFeedback) contactFeedback.textContent = `Copy unavailable. Email: ${contactEmail}`;
+    }
+  }
+  copyEmailButton.disabled = true;
+  window.setTimeout(() => {
+    copyEmailButton.disabled = false;
+    copyEmailButton.textContent = 'COPY EMAIL ⧉';
+  }, 2200);
+});
+
+const soundButton = document.getElementById('soundBtn');
+const ambientTrack = document.getElementById('ambientTrack');
+if (ambientTrack) ambientTrack.volume = 0.24;
+soundButton?.addEventListener('click', async () => {
+  if (!ambientTrack) return;
+  if (ambientTrack.paused) {
+    try {
+      await ambientTrack.play();
+      soundButton.textContent = 'SOUND ON';
+      soundButton.setAttribute('aria-label', 'Pause ambient soundtrack');
+      soundButton.setAttribute('aria-pressed', 'true');
+    } catch (error) {
+      soundButton.textContent = 'AUDIO UNAVAILABLE';
+      console.error('Could not play soundtrack:', error);
+    }
+  } else {
+    ambientTrack.pause();
+    soundButton.textContent = 'PLAY SOUND';
+    soundButton.setAttribute('aria-label', 'Play ambient soundtrack');
+    soundButton.setAttribute('aria-pressed', 'false');
+  }
+});
+
+window.portfolioPauseAmbient = () => {
+  if (!ambientTrack || ambientTrack.paused) return;
+  ambientTrack.pause();
+  if (soundButton) {
+    soundButton.textContent = 'PLAY SOUND';
+    soundButton.setAttribute('aria-label', 'Play ambient soundtrack');
+    soundButton.setAttribute('aria-pressed', 'false');
+  }
+};
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) window.portfolioPauseAmbient?.();
+});

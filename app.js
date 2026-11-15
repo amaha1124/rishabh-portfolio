@@ -424,57 +424,6 @@ document.querySelector('.brand')?.addEventListener('click', event => { event.pre
 document.querySelector('#skipToContact')?.addEventListener('click', event => {
   if (!document.body.classList.contains('no-webgl')) { event.preventDefault(); navigateToChapter(anchors.length - 1); }
 });
-document.querySelector('#year').textContent = new Date().getFullYear();
-
-// One-click email copy with a legacy fallback for browsers without Clipboard API access.
-const copyEmailButton = document.querySelector('#copyEmailBtn');
-const contactFeedback = document.querySelector('#contactFeedback');
-const contactEmail = 'arorarishabh607@gmail.com';
-function fallbackCopyText(value) {
-  const field = document.createElement('textarea');
-  field.value = value; field.setAttribute('readonly', '');
-  field.style.position = 'fixed'; field.style.opacity = '0'; field.style.pointerEvents = 'none';
-  document.body.appendChild(field); field.select(); field.setSelectionRange(0, value.length);
-  const copied = document.execCommand('copy');
-  field.remove();
-  if (!copied) throw new Error('Clipboard copy command was rejected');
-}
-copyEmailButton?.addEventListener('click', async () => {
-  try {
-    if (navigator.clipboard?.writeText && window.isSecureContext) await navigator.clipboard.writeText(contactEmail);
-    else fallbackCopyText(contactEmail);
-    copyEmailButton.textContent = 'COPIED ✓';
-    if (contactFeedback) contactFeedback.textContent = 'Email address copied to clipboard.';
-  } catch (error) {
-    try {
-      fallbackCopyText(contactEmail);
-      copyEmailButton.textContent = 'COPIED ✓';
-      if (contactFeedback) contactFeedback.textContent = 'Email address copied to clipboard.';
-    } catch (fallbackError) {
-      if (contactFeedback) contactFeedback.textContent = `Copy unavailable. Email: ${contactEmail}`;
-    }
-  }
-  copyEmailButton.disabled = true;
-  window.setTimeout(() => {
-    copyEmailButton.disabled = false;
-    copyEmailButton.textContent = 'COPY EMAIL ⧉';
-  }, 2200);
-});
-
-// Original ambient soundtrack. Playback begins only after the visitor presses the control.
-const soundButton = document.querySelector('#soundBtn');
-const ambientTrack = document.querySelector('#ambientTrack');
-if (ambientTrack) ambientTrack.volume = 0.24;
-soundButton?.addEventListener('click', async () => {
-  if (!ambientTrack) return;
-  if (ambientTrack.paused) {
-    try { await ambientTrack.play(); soundButton.textContent = 'SOUND ON'; soundButton.setAttribute('aria-label', 'Pause ambient soundtrack'); soundButton.setAttribute('aria-pressed', 'true'); }
-    catch (error) { soundButton.textContent = 'AUDIO UNAVAILABLE'; console.error('Could not play soundtrack:', error); }
-  } else {
-    ambientTrack.pause(); soundButton.textContent = 'PLAY SOUND'; soundButton.setAttribute('aria-label', 'Play ambient soundtrack'); soundButton.setAttribute('aria-pressed', 'false');
-  }
-});
-
 let animationFrameId = null;
 let hasRenderedOnce = false;
 const warmLightColor = new THREE.Color(0xffe7cf);
@@ -631,10 +580,7 @@ document.addEventListener('visibilitychange', () => {
     if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
     animationFrameId = null;
     pressed.clear(); dragging = false;
-    if (ambientTrack && !ambientTrack.paused) {
-      ambientTrack.pause();
-      if (soundButton) { soundButton.textContent = 'PLAY SOUND'; soundButton.setAttribute('aria-label', 'Play ambient soundtrack'); soundButton.setAttribute('aria-pressed', 'false'); }
-    }
+    window.portfolioPauseAmbient?.();
   } else if (animationFrameId === null) {
     lastRenderAt = 0;
     clock.getDelta();

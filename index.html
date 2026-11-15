@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#030611">
+<script>if (matchMedia('(max-width: 760px), (pointer: coarse) and (max-width: 900px)').matches) document.documentElement.classList.add('mobile-lite');</script>
 <meta name="description" content="Rishabh Arora — backend engineer exploring distributed systems and AI.">
 <title>Rishabh Arora — Beyond the Ordinary</title>
-<link rel="preload" as="image" href="/planet-textures/2k_earth_daymap.jpg" fetchpriority="high" crossorigin="anonymous">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preload" as="image" href="/planet-textures/2k_earth_daymap.jpg" fetchpriority="high" crossorigin="anonymous" media="(min-width: 761px) and (pointer: fine)">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" media="(min-width: 761px) and (pointer: fine)" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="/style.css">
 </head>
@@ -30,10 +30,10 @@
       <p class="kicker">A HUMAN, BUILDING SYSTEMS.</p>
       <h1>Rishabh<br><em>Arora.</em></h1>
       <p class="lead">Software Development Engineer II.<br>Distributed systems, backend engineering & AI.</p>
-      <div class="hero-actions"><button id="journeyTourBtn" class="journey-tour-btn" type="button" aria-pressed="false">SEE MY JOURNEY <span>↗</span></button></div>
+      <div class="hero-actions"><button id="journeyTourBtn" class="journey-tour-btn" type="button" aria-pressed="false">SEE MY JOURNEY <span>↗</span></button><button id="enable3dBtn" class="enable-3d-btn" type="button">LAUNCH 3D FLIGHT <span>↗</span></button></div>
       <div class="hero-foot"><span class="scroll-prompt"><i></i> SCROLL / TRACKPAD TO FLY</span><span>WASD TO FLY · DRAG TO LOOK</span></div>
     </div>
-    <div class="world-tag tag-home">01 / THE ORIGIN</div>
+    <div class="mobile-planet" aria-hidden="true"></div><div class="world-tag tag-home">01 / THE ORIGIN</div>
   </section>
   <section class="chapter" id="origin" data-name="THE ORIGIN">
     <div class="copy left">
