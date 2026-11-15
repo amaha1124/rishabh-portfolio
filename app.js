@@ -23,12 +23,19 @@ let prefersReducedMotion = reducedMotionQuery.matches;
 reducedMotionQuery.addEventListener?.('change', event => { prefersReducedMotion = event.matches; });
 let renderer;
 try {
-  renderer = new THREE.WebGLRenderer({ antialias: !isLowPower, alpha: false, powerPreference: 'high-performance' });
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
 } catch (error) {
   window.portfolioBootError?.('WebGL is unavailable or disabled in this browser. You can still browse the portfolio in a simplified layout below.');
   throw error;
 }
-renderer.setPixelRatio(Math.min(devicePixelRatio || 1, isSmallScreen ? (deviceMemory > 0 && deviceMemory <= 3 ? 0.72 : 0.85) : isLowPower ? 1.1 : 1.5));
+const getRenderPixelRatio = () => {
+  const nativeRatio = window.devicePixelRatio || 1;
+  // Never render below CSS-pixel resolution: sub-1 DPR made the mobile scene visibly pixelated.
+  const smallViewport = matchMedia('(max-width: 760px)').matches || matchMedia('(pointer: coarse)').matches;
+  const mobileCap = deviceMemory > 0 && deviceMemory <= 3 ? 1.0 : 1.25;
+  return Math.max(1, Math.min(nativeRatio, smallViewport ? mobileCap : isLowPower ? 1.1 : 1.5));
+};
+renderer.setPixelRatio(getRenderPixelRatio());
 renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -152,14 +159,14 @@ function makePlanet({ name, radius, position, base, accent, mode = 'bands', roug
   const group = new THREE.Group(); group.position.set(...position); scene.add(group);
   const fallbackTexture = canvasTexture(base, accent, mode);
   const material = new THREE.MeshStandardMaterial({ map: fallbackTexture, color: 0xffffff, roughness: rough, metalness: 0.015 });
-  const mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, isSmallScreen ? 36 : 64, isSmallScreen ? 24 : 48), material); group.add(mesh);
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, isSmallScreen ? 48 : 64, isSmallScreen ? 32 : 48), material); group.add(mesh);
   const atmosphereColor = name === 'Earth' ? 0x69bfff : name === 'Mars' ? 0xe98a65 : name === 'Ice' ? 0x75d9ef : name === 'Portal' ? 0x9d8aff : 0xc5d2e6;
-  const atmosphere = new THREE.Mesh(new THREE.SphereGeometry(radius * 1.012, isSmallScreen ? 24 : 48, isSmallScreen ? 16 : 32), new THREE.MeshBasicMaterial({ color: atmosphereColor, transparent: true, opacity: name === 'Earth' ? 0.075 : 0.035, blending: THREE.AdditiveBlending, side: THREE.BackSide, depthWrite: false }));
+  const atmosphere = new THREE.Mesh(new THREE.SphereGeometry(radius * 1.012, isSmallScreen ? 32 : 48, isSmallScreen ? 20 : 32), new THREE.MeshBasicMaterial({ color: atmosphereColor, transparent: true, opacity: name === 'Earth' ? 0.075 : 0.035, blending: THREE.AdditiveBlending, side: THREE.BackSide, depthWrite: false }));
   group.add(atmosphere);
-  const outerGlow = new THREE.Mesh(new THREE.SphereGeometry(radius * 1.075, isSmallScreen ? 20 : 40, isSmallScreen ? 14 : 28), new THREE.MeshBasicMaterial({ color: atmosphereColor, transparent: true, opacity: name === 'Earth' ? 0.055 : name === 'Portal' ? 0.075 : 0.025, blending: THREE.AdditiveBlending, side: THREE.BackSide, depthWrite: false }));
+  const outerGlow = new THREE.Mesh(new THREE.SphereGeometry(radius * 1.075, isSmallScreen ? 28 : 40, isSmallScreen ? 18 : 28), new THREE.MeshBasicMaterial({ color: atmosphereColor, transparent: true, opacity: name === 'Earth' ? 0.055 : name === 'Portal' ? 0.075 : 0.025, blending: THREE.AdditiveBlending, side: THREE.BackSide, depthWrite: false }));
   group.add(outerGlow);
   if (ring) {
-    const ringMesh = new THREE.Mesh(new THREE.RingGeometry(radius * 1.28, radius * 1.85, isSmallScreen ? 64 : 160), new THREE.MeshBasicMaterial({ color: ringColor, side: THREE.DoubleSide, transparent: true, opacity: 0.42 }));
+    const ringMesh = new THREE.Mesh(new THREE.RingGeometry(radius * 1.28, radius * 1.85, isSmallScreen ? 96 : 160), new THREE.MeshBasicMaterial({ color: ringColor, side: THREE.DoubleSide, transparent: true, opacity: 0.42 }));
     ringMesh.rotation.x = Math.PI / 2.35; ringMesh.rotation.y = tilt; group.add(ringMesh);
     const outerRing = new THREE.Mesh(new THREE.RingGeometry(radius * 1.9, radius * 2.03, isSmallScreen ? 64 : 160), new THREE.MeshBasicMaterial({ color: ringColor, side: THREE.DoubleSide, transparent: true, opacity: 0.13 }));
     outerRing.rotation.copy(ringMesh.rotation); group.add(outerRing);
@@ -599,10 +606,7 @@ renderer.domElement.addEventListener('webglcontextrestored', () => {
 });
 window.addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
-  const mobile = matchMedia('(max-width: 760px)').matches || matchMedia('(pointer: coarse)').matches;
-  const lowPower = mobile || matchMedia('(max-width: 1100px)').matches || (Number(navigator.hardwareConcurrency || 0) > 0 && Number(navigator.hardwareConcurrency || 0) <= 6);
-  const memory = Number(navigator.deviceMemory || 0);
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, mobile ? (memory > 0 && memory <= 3 ? 0.72 : 0.85) : lowPower ? 1.1 : 1.5));
+  renderer.setPixelRatio(getRenderPixelRatio());
   renderer.setSize(innerWidth, innerHeight);
 });
 }

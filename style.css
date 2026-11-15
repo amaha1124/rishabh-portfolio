@@ -357,3 +357,46 @@ html.mobile-lite body .mobile-planet{display:block}
   body.no-webgl .links,html.mobile-lite body .links{gap:13px;flex-wrap:wrap}
   body.no-webgl .links a,html.mobile-lite body .links a{font-size:8px}
 }
+
+
+/* v8.7 mobile visual-quality pass: use resolution-independent SVG artwork and
+   avoid fixed CSS backgrounds, which can tear or repaint unevenly on mobile Safari. */
+html.mobile-lite {
+  background-color: #030611;
+  background-image: url('/assets/mobile-starfield-v87.svg');
+  background-position: center top;
+  background-size: 100% auto;
+  background-repeat: repeat-y;
+  background-attachment: scroll;
+}
+html.mobile-lite body {
+  background-color: transparent !important;
+  background-image: none !important;
+  background-attachment: scroll !important;
+}
+html.mobile-lite body .mobile-planet {
+  width: clamp(112px, 32vw, 144px);
+  aspect-ratio: 1;
+  opacity: 1;
+  background-color: transparent;
+  background-image: url('/assets/mobile-earth-v87.svg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  border-radius: 0;
+  box-shadow: none;
+  image-rendering: auto;
+}
+html.mobile-lite body .mobile-planet::after { display: none; }
+html.mobile-lite body .case-dialog-backdrop { backdrop-filter: none; -webkit-backdrop-filter: none; }
+html.mobile-lite body .case-dialog-panel { box-shadow: 0 12px 36px #0008; }
+html.mobile-lite body .case-node,
+html.mobile-lite body .case-metrics > div,
+html.mobile-lite body .tech-grid span,
+html.mobile-lite body .future-list span {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+@media (max-width: 760px) {
+  html.mobile-lite body .mobile-planet { right: 7%; bottom: 18px; width: clamp(108px, 31vw, 132px); }
+}
