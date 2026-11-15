@@ -154,3 +154,13 @@
 
 /* Guided, hands-free portfolio tour */
 .hero-actions{margin-top:28px}.journey-tour-btn{appearance:none;border:1px solid #c6a77b88;background:#c6a77b;color:#10131a;padding:13px 18px;font:700 9px var(--mono);letter-spacing:.14em;cursor:pointer;transition:background .2s,transform .2s}.journey-tour-btn span{margin-left:18px;font-size:13px}.journey-tour-btn:hover{background:#e0c69f;transform:translateY(-2px)}.journey-tour-btn:focus-visible{outline:2px solid #fff;outline-offset:4px}@media(max-width:760px){.hero-actions{margin-top:22px}.journey-tour-btn{padding:12px 15px;font-size:8px}}
+
+
+/* Persistent return-to-top control, positioned above the flight controls. */
+.return-top-btn{position:fixed;right:calc(4vw - 5px);bottom:calc(11% + 52px);z-index:14;display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid #c6a77b66;border-radius:2px;background:#071020c9;color:#d7c4a4;font:700 8px var(--mono);letter-spacing:.14em;cursor:pointer;backdrop-filter:blur(10px);transition:background .2s,border-color .2s,transform .2s}
+.return-top-btn:hover{background:#c6a77b;color:#10131a;border-color:#c6a77b;transform:translateY(-2px)}
+.return-top-arrow{font-size:15px;line-height:1}
+.return-top-label{font-size:7px}
+.return-top-btn:focus-visible{outline:2px solid #fff;outline-offset:4px}
+@media(max-width:760px){.return-top-btn{right:12px;bottom:calc(10% + 52px);padding:9px 10px;gap:6px}.return-top-arrow{font-size:16px}}
+@media(max-width:760px) and (max-height:740px){.return-top-btn{bottom:calc(10% + 48px)}}

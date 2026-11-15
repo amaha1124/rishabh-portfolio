@@ -167,6 +167,7 @@ const names = ['DEEP SPACE', 'THE ORIGIN', 'SYSTEMS PLANET', 'FIELD MISSIONS', '
 const anchors = [23, -35, -78, -121, -164, -210];
 let currentChapter = 0;
 let journeyRunning = false;
+let returningToTop = false;
 let journeyStopIndex = 0;
 let journeyDwellUntil = 0;
 let journeyLastFrame = 0;
@@ -182,7 +183,16 @@ function startJourney() {
   velocity.set(0, 0, 0);
   if (journeyButton) { journeyButton.textContent = 'PAUSE JOURNEY'; journeyButton.setAttribute('aria-pressed', 'true'); }
 }
-journeyButton?.addEventListener('click', () => { if (journeyRunning) stopJourney(); else startJourney(); });
+journeyButton?.addEventListener('click', () => { returningToTop = false; if (journeyRunning) stopJourney(); else startJourney(); });
+const returnTopButton = document.querySelector('#returnTopBtn');
+returnTopButton?.addEventListener('click', () => {
+  stopJourney();
+  returningToTop = true;
+  pressed.clear();
+  velocity.set(0, 0, 0);
+  topViewEnabled = false;
+  topViewTargetPitch = 0;
+});
 function updateChapter() {
   let nearest = 0, best = Infinity;
   anchors.forEach((z, i) => { const distance = Math.abs(camera.position.z - z); if (distance < best) { best = distance; nearest = i; } });
@@ -209,7 +219,7 @@ let dragging = false, lastPointerX = 0, lastPointerY = 0;
 const clock = new THREE.Clock();
 let lastScrollAt = 0;
 window.addEventListener('keydown', event => {
-  if (journeyRunning && (keyBindings[event.code] || event.code === 'Space' || event.key.startsWith('Arrow'))) stopJourney();
+  if (keyBindings[event.code] || event.code === 'Space' || event.key.startsWith('Arrow')) { if (journeyRunning) stopJourney(); returningToTop = false; }
   if (desktopTopView && event.code === 'KeyT') {
     topViewEnabled = !topViewEnabled;
     if (topViewEnabled) { pitchBeforeTopView = pitch; topViewTargetPitch = 1.48; }
@@ -227,6 +237,7 @@ window.addEventListener('blur', () => { pressed.clear(); dragging = false; });
 // Wheel/trackpad input changes ship velocity proportionally, so the visitor chooses the pace.
 window.addEventListener('wheel', event => {
   if (journeyRunning) stopJourney();
+  returningToTop = false;
   event.preventDefault();
   // On desktop, Shift + trackpad/mouse-wheel tilts the camera toward a top-down view.
   // Ordinary scrolling continues to control forward flight. Mobile behaviour is untouched.
@@ -245,7 +256,7 @@ window.addEventListener('wheel', event => {
 }, { passive: false });
 
 // Click-drag to steer the view. Mouse movement is not tied to the active content card.
-window.addEventListener('pointerdown', event => { if (journeyRunning) stopJourney(); if (event.pointerType === 'touch' || event.target.closest('a, button')) return; dragging = true; lastPointerX = event.clientX; lastPointerY = event.clientY; });
+window.addEventListener('pointerdown', event => { if (journeyRunning) stopJourney(); returningToTop = false; if (event.pointerType === 'touch' || event.target.closest('a, button')) return; dragging = true; lastPointerX = event.clientX; lastPointerY = event.clientY; });
 window.addEventListener('pointermove', event => {
   if (!dragging || event.pointerType === 'touch') return;
   const dx = event.clientX - lastPointerX, dy = event.clientY - lastPointerY;
@@ -262,6 +273,7 @@ let touchX = 0, touchY = 0, touchActive = false;
 let touchTargetIsCopy = false;
 window.addEventListener('touchstart', event => {
   if (journeyRunning) stopJourney();
+  returningToTop = false;
   if (event.touches.length !== 1) { touchActive = false; return; }
   const t = event.touches[0];
   touchX = t.clientX; touchY = t.clientY; touchActive = true;
@@ -317,6 +329,23 @@ function animate() {
   requestAnimationFrame(animate);
   const delta = Math.min(clock.getDelta(), 0.04), elapsed = clock.elapsedTime;
   if (desktopTopView) pitch = THREE.MathUtils.damp(pitch, topViewTargetPitch, 3.2, delta);
+  if (returningToTop) {
+    const dx = -camera.position.x, dy = -camera.position.y, dz = anchors[0] - camera.position.z;
+    const distance = Math.hypot(dx, dy, dz);
+    if (distance > 0.8) {
+      const step = Math.min(distance, 24 * delta);
+      camera.position.x += dx / distance * step;
+      camera.position.y += dy / distance * step;
+      camera.position.z += dz / distance * step;
+      yaw = THREE.MathUtils.damp(yaw, 0, 3.5, delta);
+      pitch = THREE.MathUtils.damp(pitch, 0, 3.5, delta);
+      velocity.set(0, 0, 0);
+    } else {
+      camera.position.set(0, 0, anchors[0]);
+      yaw = 0; pitch = 0; velocity.set(0, 0, 0);
+      returningToTop = false;
+    }
+  }
   if (journeyRunning) {
     const now = performance.now();
     const targetZ = anchors[journeyStopIndex];
