@@ -102,3 +102,12 @@ Planet surface textures: Solar System Scope, https://www.solarsystemscope.com/te
 - Redis is deliberately described as the cache / hot-path layer rather than the durable transaction ledger. Actual capacity and topology must be confirmed with workload profiling and load testing.
 - Case-study interactions are in a standalone `case-study.js` file so the experience also works when the Three.js / WebGL scene cannot initialize.
 - The modal supports keyboard focus containment, Escape to close, touch scrolling, and isolation from the background 3D flight controls.
+
+## v8.2 interactive request-flow simulator
+
+- Extended the Bonus Promotions case study with a client-side request-flow simulator.
+- Visitors can run three illustrative scenarios: eligibility cache hit (Spring Boot → Redis → response), eligibility cache miss (Spring Boot → Redis miss → PostgreSQL fallback → response), and a bonus lifecycle write (Spring Boot → PostgreSQL durable commit → asynchronous Kafka / consumer path).
+- Each simulation advances step-by-step through a route trace, highlights the matching architecture component, and provides an accessible execution log and completion status.
+- The selected load profile (1, 100, 10K or 1M concurrent users) updates the component labels shown in the trace.
+- The simulator sends no live requests and reports no latency or throughput measurements. It is a front-end teaching visualization of request sequencing and component responsibility.
+- Reduced-motion preferences shorten the trace animation; the route remains available as a readable step list.

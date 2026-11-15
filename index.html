@@ -128,19 +128,45 @@
 
     <div class="case-architecture" aria-label="Architecture diagram">
       <div class="case-ingress-row">
-        <article class="case-node case-client"><span class="case-node-type">TRAFFIC</span><strong id="caseClientTitle">1 player</strong><small id="caseClientDetail">Casino lobby / bonus request</small></article>
+        <article class="case-node case-client" data-arch-node="client"><span class="case-node-type">TRAFFIC</span><strong id="caseClientTitle">1 player</strong><small id="caseClientDetail">Casino lobby / bonus request</small></article>
         <span class="case-arrow" aria-hidden="true">→</span>
-        <article class="case-node case-gateway"><span class="case-node-type">INGRESS</span><strong id="caseGatewayTitle">Direct API route</strong><small id="caseGatewayDetail">Single entry point</small></article>
+        <article class="case-node case-gateway" data-arch-node="gateway"><span class="case-node-type">INGRESS</span><strong id="caseGatewayTitle">Direct API route</strong><small id="caseGatewayDetail">Single entry point</small></article>
         <span class="case-arrow" aria-hidden="true">→</span>
-        <article class="case-node case-service"><span class="case-node-type">APPLICATION</span><strong id="caseServiceTitle">1 Spring Boot instance</strong><small id="caseServiceDetail">Campaign and player services</small></article>
+        <article class="case-node case-service" data-arch-node="service"><span class="case-node-type">APPLICATION</span><strong id="caseServiceTitle">1 Spring Boot instance</strong><small id="caseServiceDetail">Campaign and player services</small></article>
       </div>
       <div class="case-branch-label"><span></span> SERVICE DATA & EVENT PATHS <span></span></div>
       <div class="case-branch-grid">
-        <article class="case-node case-redis"><div class="case-node-heading"><span class="case-node-type">LOW-LATENCY HOT PATH</span><span class="case-node-icon">R</span></div><strong id="caseRedisTitle">Redis primary</strong><small id="caseRedisDetail">Cached eligibility and upcoming bonus data</small><em id="caseRedisScale">Shared cache layer</em></article>
-        <article class="case-node case-db"><div class="case-node-heading"><span class="case-node-type">SYSTEM OF RECORD</span><span class="case-node-icon">DB</span></div><strong id="caseDbTitle">PostgreSQL primary</strong><small id="caseDbDetail">Durable campaign and transaction state</small><em id="caseDbScale">Transactional persistence</em></article>
-        <article class="case-node case-kafka"><div class="case-node-heading"><span class="case-node-type">ASYNC EVENT STREAM</span><span class="case-node-icon">K</span></div><strong id="caseKafkaTitle">Kafka event topics</strong><small id="caseKafkaDetail">Downstream processing and reporting events</small><em id="caseKafkaScale">Decoupled consumers</em></article>
+        <article class="case-node case-redis" data-arch-node="redis"><div class="case-node-heading"><span class="case-node-type">LOW-LATENCY HOT PATH</span><span class="case-node-icon">R</span></div><strong id="caseRedisTitle">Redis primary</strong><small id="caseRedisDetail">Cached eligibility and upcoming bonus data</small><em id="caseRedisScale">Shared cache layer</em></article>
+        <article class="case-node case-db" data-arch-node="db"><div class="case-node-heading"><span class="case-node-type">SYSTEM OF RECORD</span><span class="case-node-icon">DB</span></div><strong id="caseDbTitle">PostgreSQL primary</strong><small id="caseDbDetail">Durable campaign and transaction state</small><em id="caseDbScale">Transactional persistence</em></article>
+        <article class="case-node case-kafka" data-arch-node="kafka"><div class="case-node-heading"><span class="case-node-type">ASYNC EVENT STREAM</span><span class="case-node-icon">K</span></div><strong id="caseKafkaTitle">Kafka event topics</strong><small id="caseKafkaDetail">Downstream processing and reporting events</small><em id="caseKafkaScale">Decoupled consumers</em></article>
       </div>
       <div class="case-flow-legend"><span><i class="flow-redis"></i> Cached read / cache miss fallback</span><span><i class="flow-db"></i> Durable write</span><span><i class="flow-kafka"></i> Asynchronous event</span></div>
+
+      <section class="case-request-lab" aria-labelledby="caseRequestLabTitle">
+        <div class="case-request-heading">
+          <div><p class="case-kicker">TRACE A REQUEST</p><h4 id="caseRequestLabTitle">See the request move through the system.</h4></div>
+          <span class="case-simulation-label">SIMULATED · NO LIVE BACKEND CALL</span>
+        </div>
+        <div class="case-request-toolbar">
+          <div class="case-request-scenarios" role="group" aria-label="Choose request scenario">
+            <button type="button" class="case-scenario-btn is-selected" data-flow-scenario="eligibility-hit" aria-pressed="true">Eligibility · cache hit</button>
+            <button type="button" class="case-scenario-btn" data-flow-scenario="eligibility-miss" aria-pressed="false">Eligibility · cache miss</button>
+            <button type="button" class="case-scenario-btn" data-flow-scenario="bonus-write" aria-pressed="false">Bonus lifecycle write</button>
+          </div>
+          <button type="button" class="case-run-btn" id="runCaseFlowBtn">RUN REQUEST <span aria-hidden="true">↗</span></button>
+        </div>
+        <div class="case-flow-track-shell">
+          <div class="case-flow-track" id="caseFlowTrack" aria-label="Request path"></div>
+        </div>
+        <div class="case-flow-status-row">
+          <p id="caseFlowStatus" role="status" aria-live="polite" aria-atomic="true">Select a scenario, then run it to trace the request.</p>
+          <span id="caseFlowCounter" class="case-flow-counter">READY</span>
+        </div>
+        <ol class="case-flow-log" id="caseFlowLog" aria-label="Request execution steps">
+          <li class="is-current"><span>READY</span><p>The simulator will highlight each component as the request reaches it.</p></li>
+        </ol>
+        <p class="case-flow-disclaimer">This is a client-side teaching simulation. It illustrates request sequencing and component responsibilities; it does not send traffic, measure latency or connect to production systems.</p>
+      </section>
     </div>
 
     <div class="case-explanation">
