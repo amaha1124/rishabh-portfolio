@@ -147,9 +147,9 @@ window.addEventListener('wheel', event => {
 }, { passive: false });
 
 // Click-drag to steer the view. Mouse movement is not tied to the active content card.
-window.addEventListener('pointerdown', event => { if (event.target.closest('a, button')) return; dragging = true; lastPointerX = event.clientX; lastPointerY = event.clientY; });
+window.addEventListener('pointerdown', event => { if (event.pointerType === 'touch' || event.target.closest('a, button')) return; dragging = true; lastPointerX = event.clientX; lastPointerY = event.clientY; });
 window.addEventListener('pointermove', event => {
-  if (!dragging) return;
+  if (!dragging || event.pointerType === 'touch') return;
   const dx = event.clientX - lastPointerX, dy = event.clientY - lastPointerY;
   yaw -= dx * 0.0032; pitch = THREE.MathUtils.clamp(pitch - dy * 0.0025, -1.15, 1.15);
   lastPointerX = event.clientX; lastPointerY = event.clientY;
@@ -175,11 +175,13 @@ window.addEventListener('touchmove', event => {
   const canScrollCopy = copy && copy.scrollHeight > copy.clientHeight + 2;
   const movingWithinCopy = canScrollCopy && Math.abs(dy) > Math.abs(dx);
   if (!movingWithinCopy) {
-    // Natural finger movement: swipe up = fly forward, swipe down = reverse.
-    velocity.z += dy * 0.38;
-    velocity.x -= dx * 0.28;
-    velocity.z = THREE.MathUtils.clamp(velocity.z, -52, 52);
-    velocity.x = THREE.MathUtils.clamp(velocity.x, -34, 34);
+    // Translate the ship through 3D space; do not rotate the view on touch.
+    // Swipe up moves along the camera's forward vector; horizontal swipe strafes.
+    const forward = new THREE.Vector3(Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), -Math.cos(yaw) * Math.cos(pitch));
+    const right = new THREE.Vector3(Math.cos(yaw), 0, Math.sin(yaw));
+    velocity.addScaledVector(forward, -dy * 0.62);
+    velocity.addScaledVector(right, -dx * 0.42);
+    velocity.clampLength(0, 58);
     lastScrollAt = performance.now();
     if (event.cancelable) event.preventDefault();
   }

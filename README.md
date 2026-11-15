@@ -44,3 +44,8 @@ Import the GitHub repository as a static project. Framework preset: Other; Build
 
 
 Mobile interaction update: mobile directional pads are removed. Swipe vertically on the scene to fly forward/backward and horizontally to strafe. Text panels retain native vertical scrolling when their content overflows. Mobile scene shortcut buttons are hidden.
+
+## Touch steering correction (v6.4)
+- Touch pointer events no longer enter the mouse-look rotation handler.
+- One-finger scene swipes translate the camera through 3D space: upward along the current view direction, downward in reverse, and left/right by strafing.
+- Vertical swipes starting inside scrollable content panels remain native panel scrolling.
