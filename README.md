@@ -92,3 +92,13 @@ Planet surface textures: Solar System Scope, https://www.solarsystemscope.com/te
 - Added stronger keyboard focus indicators, semantic progress and status announcements, button labels/pressed states, and a skip-to-contact link.
 - Graphics pixel ratio and shadow usage are reduced on smaller or lower-power devices. The 3D scene remains dependent on browser WebGL support and an internet connection for the Three.js module and remote planet textures.
 - No employer project repository links were added; personal repository links can be added when those URLs are available.
+
+## v8.1 interactive Bonus Promotions case study
+
+- Added an interactive case study to **Mission 01 — Bonus Promotions Platform**.
+- Visitors can switch between **1 user**, **100 users**, **10K users** and **1M users**. Each selection updates the architecture topology, component responsibilities and scale-specific design notes.
+- The architecture illustrates a stateless Spring Boot service tier, Redis-backed hot-read acceleration, PostgreSQL as the durable transaction system of record, and Kafka as the asynchronous event path.
+- The 10M+ RPM transaction figure reuses the scale metric already displayed in this portfolio. The selector is an illustrative architecture walkthrough, not a live benchmark or a representation of exact production node counts.
+- Redis is deliberately described as the cache / hot-path layer rather than the durable transaction ledger. Actual capacity and topology must be confirmed with workload profiling and load testing.
+- Case-study interactions are in a standalone `case-study.js` file so the experience also works when the Three.js / WebGL scene cannot initialize.
+- The modal supports keyboard focus containment, Escape to close, touch scrolling, and isolation from the background 3D flight controls.

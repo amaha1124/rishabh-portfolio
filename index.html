@@ -65,7 +65,7 @@
     <div class="copy left mission-copy">
       <div class="eyebrow">SECTOR 03 <b>·</b> FIELD MISSIONS</div><p class="kicker">03 — MISSIONS & EXPERIMENTS</p>
       <h2>Built in the<br><em>real world.</em></h2>
-      <div class="mission"><small>MISSION 01</small><h3>Bonus Promotions Platform</h3><p>Backend services for campaign lifecycles, player eligibility, bonus assignment, wagering, cancellation, expiry and reporting.</p><div class="stack">JAVA · SPRING BOOT · KAFKA · POSTGRESQL · REDIS</div></div>
+      <div class="mission mission-featured"><small>MISSION 01</small><h3>Bonus Promotions Platform</h3><p>Backend services for campaign lifecycles, player eligibility, bonus assignment, wagering, cancellation, expiry and reporting.</p><div class="stack">JAVA · SPRING BOOT · KAFKA · POSTGRESQL · REDIS</div><button class="case-study-open" id="openBonusCaseStudy" type="button" aria-haspopup="dialog" aria-controls="bonusCaseStudy" aria-expanded="false">EXPLORE INTERACTIVE CASE STUDY <span aria-hidden="true">↗</span></button></div>
       <div class="mission"><small>MISSION 02</small><h3>AI Production Log Analyzer</h3><p>An exploration into Elasticsearch-powered log investigation and LLM-assisted incident analysis.</p><div class="stack">SPRING BOOT · ELASTICSEARCH · LLM</div></div>
       <div class="mission"><small>MISSION 03</small><h3>Career Autopilot <span class="in-progress">IN PROGRESS</span></h3><p>A Go service on AWS Bedrock that analyses resumes against live job listings, produces ATS-style scoring, identifies gaps and rewrites weaker sections. Uses local and Redis caching to reduce repeated LLM calls.</p><div class="stack">GOLANG · AWS BEDROCK · REDIS · LLM</div></div>
       <p class="fineprint">Professional work is described at a high level to respect employer confidentiality. Personal explorations are not presented as production-scale systems.</p>
@@ -97,6 +97,64 @@
     </div><div class="world-tag tag-contact">END OF TRANSMISSION</div>
   </section>
 </main>
+<section class="case-dialog" id="bonusCaseStudy" role="dialog" aria-modal="true" aria-labelledby="caseStudyTitle" aria-describedby="caseStudyIntro" hidden>
+  <div class="case-dialog-backdrop" data-case-close="true"></div>
+  <div class="case-dialog-panel" role="document" tabindex="-1">
+    <header class="case-dialog-header">
+      <div>
+        <p class="case-kicker">MISSION 01 / SYSTEM DESIGN WALKTHROUGH</p>
+        <h2 id="caseStudyTitle">Bonus Promotions <em>at scale.</em></h2>
+        <p id="caseStudyIntro" class="case-intro">Explore how the reference architecture evolves as concurrent player traffic grows—from a single user to a million.</p>
+      </div>
+      <button class="case-close" id="closeBonusCaseStudy" type="button" aria-label="Close interactive case study">×</button>
+    </header>
+
+    <div class="case-metrics" aria-label="Platform scale highlights">
+      <div><strong>10M+</strong><span>RPM TRANSACTIONS*</span></div>
+      <div><strong>REDIS</strong><span>HOT-READ ACCELERATION</span></div>
+      <div><strong>POSTGRESQL</strong><span>DURABLE TRANSACTION STATE</span></div>
+    </div>
+
+    <div class="case-scale-header">
+      <div><p class="case-kicker">CHANGE THE LOAD PROFILE</p><h3>How many concurrent users?</h3></div>
+      <span class="case-simulation-label">ILLUSTRATIVE ARCHITECTURE</span>
+    </div>
+    <div class="case-scale-options" role="group" aria-label="Select concurrent user scale">
+      <button type="button" class="case-scale-btn is-selected" data-scale="1" aria-pressed="true">1 USER</button>
+      <button type="button" class="case-scale-btn" data-scale="100" aria-pressed="false">100 USERS</button>
+      <button type="button" class="case-scale-btn" data-scale="10000" aria-pressed="false">10K USERS</button>
+      <button type="button" class="case-scale-btn" data-scale="1000000" aria-pressed="false">1M USERS</button>
+    </div>
+
+    <div class="case-architecture" aria-label="Architecture diagram">
+      <div class="case-ingress-row">
+        <article class="case-node case-client"><span class="case-node-type">TRAFFIC</span><strong id="caseClientTitle">1 player</strong><small id="caseClientDetail">Casino lobby / bonus request</small></article>
+        <span class="case-arrow" aria-hidden="true">→</span>
+        <article class="case-node case-gateway"><span class="case-node-type">INGRESS</span><strong id="caseGatewayTitle">Direct API route</strong><small id="caseGatewayDetail">Single entry point</small></article>
+        <span class="case-arrow" aria-hidden="true">→</span>
+        <article class="case-node case-service"><span class="case-node-type">APPLICATION</span><strong id="caseServiceTitle">1 Spring Boot instance</strong><small id="caseServiceDetail">Campaign and player services</small></article>
+      </div>
+      <div class="case-branch-label"><span></span> SERVICE DATA & EVENT PATHS <span></span></div>
+      <div class="case-branch-grid">
+        <article class="case-node case-redis"><div class="case-node-heading"><span class="case-node-type">LOW-LATENCY HOT PATH</span><span class="case-node-icon">R</span></div><strong id="caseRedisTitle">Redis primary</strong><small id="caseRedisDetail">Cached eligibility and upcoming bonus data</small><em id="caseRedisScale">Shared cache layer</em></article>
+        <article class="case-node case-db"><div class="case-node-heading"><span class="case-node-type">SYSTEM OF RECORD</span><span class="case-node-icon">DB</span></div><strong id="caseDbTitle">PostgreSQL primary</strong><small id="caseDbDetail">Durable campaign and transaction state</small><em id="caseDbScale">Transactional persistence</em></article>
+        <article class="case-node case-kafka"><div class="case-node-heading"><span class="case-node-type">ASYNC EVENT STREAM</span><span class="case-node-icon">K</span></div><strong id="caseKafkaTitle">Kafka event topics</strong><small id="caseKafkaDetail">Downstream processing and reporting events</small><em id="caseKafkaScale">Decoupled consumers</em></article>
+      </div>
+      <div class="case-flow-legend"><span><i class="flow-redis"></i> Cached read / cache miss fallback</span><span><i class="flow-db"></i> Durable write</span><span><i class="flow-kafka"></i> Asynchronous event</span></div>
+    </div>
+
+    <div class="case-explanation">
+      <div class="case-explanation-main"><p class="case-kicker" id="caseScaleEyebrow">01 / SINGLE REQUEST</p><h3 id="caseScaleTitle">Keep the path simple.</h3><p id="caseScaleSummary" aria-live="polite">One application instance handles the request. Redis can serve hot eligibility and upcoming-bonus reads; PostgreSQL remains the durable source of truth.</p></div>
+      <div class="case-design-notes"><p class="case-kicker">WHAT CHANGES AT THIS SCALE</p><ul id="caseScaleNotes"><li>One service instance is enough for the illustrative starting point.</li><li>Redis avoids repeatedly hitting PostgreSQL for hot read data.</li><li>Lifecycle writes remain durable in PostgreSQL; events can be processed asynchronously.</li></ul></div>
+    </div>
+    <div class="case-transaction-flow">
+      <div><span>01 / READ</span><p>Eligibility and upcoming-bonus reads check Redis first; cache misses fall back to PostgreSQL.</p></div>
+      <div><span>02 / WRITE</span><p>Bonus lifecycle changes are persisted durably in PostgreSQL. Redis supports fast access to hot data.</p></div>
+      <div><span>03 / PROCESS</span><p>Kafka provides an asynchronous event path for downstream consumers and reporting workflows.</p></div>
+    </div>
+    <p class="case-footnote">*10M+ RPM transaction metric is the scale figure already stated in this portfolio. The user selector is an architecture walkthrough—not a live benchmark or a claim that these exact node counts were deployed. Redis accelerates the hot path; it is not presented as the durable transaction ledger. Actual capacity depends on workload mix, data model, cache hit rate and load testing.</p>
+  </div>
+</section>
 <div class="bottom-hint"><span class="desktop-hint">WASD: FLY · SCROLL: CRUISE · DRAG: LOOK · Q/E: UP/DOWN</span><span class="mobile-hint">SWIPE TO EXPLORE</span></div>
 <button id="returnTopBtn" class="return-top-btn" type="button" aria-label="Return to top" title="Return to top"><span class="return-top-arrow">↑</span><span class="return-top-label">TOP</span></button>
 <div class="scene-controls" role="group" aria-label="Chapter navigation">
@@ -125,5 +183,6 @@
     }
   });
 </script>
+<script src="case-study.js"></script>
 <script type="module" src="app.js" onerror="window.portfolioBootError && window.portfolioBootError('The 3D engine could not be downloaded. Check your connection or continue with the text portfolio below.')"></script>
 </body></html>

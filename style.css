@@ -201,3 +201,87 @@ body.no-webgl .copy,body.no-webgl .hero-copy,body.no-webgl .copy.left,body.no-we
 body.no-webgl .world-tag,body.no-webgl .hero-actions,body.no-webgl .hero-foot{display:none}
 @media(max-width:760px){.links .copy-email-btn{font-size:7px;padding:10px 11px}.contact-feedback{font-size:7px} .loading-panel{padding:24px 18px}}
 @media(prefers-reduced-motion:reduce){.loading-screen,.skip-link,.links .copy-email-btn{transition:none!important}.loading-track span{animation:none!important;width:100%}.loading-screen.is-hidden{display:none}}
+
+/* Interactive Bonus Promotions architecture case study. */
+.mission-featured{position:relative}
+.case-study-open{display:inline-flex;align-items:center;gap:16px;margin-top:9px;padding:8px 11px;border:1px solid #c6a77b77;background:#c6a77b12;color:#e2c9a4;font:700 7px var(--mono);letter-spacing:.12em;cursor:pointer;transition:background .18s,color .18s,border-color .18s}
+.case-study-open:hover{background:#c6a77b;color:#10131a;border-color:#c6a77b}
+.case-study-open span{font-size:12px}
+.case-dialog[hidden]{display:none!important}
+.case-dialog{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:clamp(12px,2.5vw,34px);color:#eaf0fa}
+.case-dialog-backdrop{position:absolute;inset:0;background:rgba(2,5,13,.94);backdrop-filter:blur(16px)}
+.case-dialog-panel{position:relative;z-index:1;width:min(1160px,100%);max-height:min(92dvh,980px);overflow-y:auto;overscroll-behavior:contain;padding:clamp(18px,3vw,34px);border:1px solid #c6a77b55;background:linear-gradient(145deg,#0a1324f5,#070c18f8 58%,#0b1120f5);box-shadow:0 24px 100px #000b;scrollbar-width:thin;scrollbar-color:#7c6a51 #0a1120}
+.case-dialog-header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.case-kicker{margin:0 0 8px;color:#c6a77b;font:8px var(--mono);letter-spacing:.16em}
+.case-dialog-header h2{margin:0;font:800 clamp(28px,4vw,48px)/1.02 var(--sans);letter-spacing:-.065em}
+.case-dialog-header h2 em{font-style:normal;color:transparent;-webkit-text-stroke:1px #c6b79f}
+.case-intro{max-width:700px;margin:11px 0 0;color:#aab8d0;font:12px/1.65 var(--sans)}
+.case-close{flex:0 0 auto;width:38px;height:38px;border:1px solid #c6a77b66;background:#071020;color:#e6d3b7;font:25px/1 var(--sans);cursor:pointer}
+.case-close:hover{background:#c6a77b;color:#111724}
+.case-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0 27px}
+.case-metrics>div{display:flex;flex-direction:column;gap:5px;padding:12px 14px;border:1px solid #c3b39328;background:#c6a77b08}
+.case-metrics strong{color:#e6d1ad;font:700 clamp(15px,2vw,21px) var(--sans);letter-spacing:-.04em}
+.case-metrics span{color:#8192ae;font:7px var(--mono);letter-spacing:.13em}
+.case-scale-header{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:12px}
+.case-scale-header h3{margin:0;color:#edf3ff;font:700 clamp(16px,2.3vw,22px) var(--sans);letter-spacing:-.035em}
+.case-simulation-label{padding:6px 8px;border:1px solid #91a8c733;color:#91a8c7;font:7px var(--mono);letter-spacing:.12em;white-space:nowrap}
+.case-scale-options{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:15px}
+.case-scale-btn{min-height:42px;padding:10px;border:1px solid #8191aa44;background:#081222;color:#aab8cf;font:700 9px var(--mono);letter-spacing:.1em;cursor:pointer;transition:background .18s,border-color .18s,color .18s}
+.case-scale-btn:hover{border-color:#c6a77b99;color:#f1e2c8}
+.case-scale-btn.is-selected{border-color:#c6a77b;background:#c6a77b;color:#111722}
+.case-architecture{padding:clamp(12px,2vw,20px);border:1px solid #8092ad2e;background:linear-gradient(135deg,#081324d9,#060b16ed)}
+.case-ingress-row{display:grid;grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr) 22px minmax(0,1.2fr);align-items:stretch;gap:7px}
+.case-node{min-width:0;display:flex;flex-direction:column;gap:7px;padding:13px;border:1px solid #92a4bf38;background:#0c192b}
+.case-node-type{color:#8496b4;font:7px var(--mono);letter-spacing:.13em}
+.case-node strong{color:#eff4fc;font:700 12px/1.35 var(--sans)}
+.case-node small{color:#a7b5cb;font:10px/1.45 var(--sans)}
+.case-node em{margin-top:auto;padding-top:5px;color:#d1b78f;font:italic 9px/1.4 var(--sans)}
+.case-client{border-color:#8e9ebb44}.case-gateway{border-color:#c6a77b65}.case-service{border-color:#99a9c255;background:#101a2c}
+.case-arrow{align-self:center;justify-self:center;color:#c6a77b;font:20px var(--sans)}
+.case-branch-label{display:flex;align-items:center;gap:10px;margin:18px 0 10px;color:#7688a7;font:7px var(--mono);letter-spacing:.17em}
+.case-branch-label span{height:1px;flex:1;background:#91a1bb2e}
+.case-branch-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.case-redis{border-color:#c6a77b77;background:linear-gradient(140deg,#211c1a88,#0c1727)}
+.case-db{border-color:#8fa6c766}.case-kafka{border-color:#a9b6ca55}
+.case-node-heading{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.case-node-icon{width:22px;height:22px;display:grid;place-items:center;border:1px solid #c6a77b66;border-radius:50%;color:#dbc39d;font:8px var(--mono)}
+.case-flow-legend{display:flex;flex-wrap:wrap;gap:13px 22px;margin-top:13px;color:#8495af;font:8px var(--mono)}
+.case-flow-legend span{display:flex;align-items:center;gap:7px}
+.case-flow-legend i{width:7px;height:7px;border-radius:50%;display:inline-block}
+.flow-redis{background:#d2b487}.flow-db{background:#8eaacb}.flow-kafka{background:#b0b9c9}
+.case-explanation{display:grid;grid-template-columns:1.05fr .95fr;gap:22px;margin-top:16px;padding:17px 18px;border:1px solid #c6a77b37;background:#c6a77b09}
+.case-explanation h3{margin:0 0 8px;color:#f0e4d1;font:700 clamp(17px,2vw,23px) var(--sans);letter-spacing:-.04em}
+.case-explanation-main>p:last-child{margin:0;color:#b1bed2;font:11px/1.65 var(--sans)}
+.case-design-notes ul{margin:0;padding-left:17px;color:#aab8ce;font:10px/1.65 var(--sans)}
+.case-design-notes li+li{margin-top:4px}
+.case-transaction-flow{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}
+.case-transaction-flow>div{padding:12px;border-top:1px solid #c6a77b66;background:#08122288}
+.case-transaction-flow span{color:#d2b78e;font:7px var(--mono);letter-spacing:.14em}
+.case-transaction-flow p{margin:7px 0 0;color:#aab7cc;font:9px/1.6 var(--sans)}
+.case-footnote{margin:14px 0 0;color:#7889a5;font:8px/1.6 var(--sans)}
+.case-dialog-open{overflow:hidden}
+@media(max-width:760px){
+ .case-study-open{font-size:6px;padding:7px 8px;gap:9px}
+ .case-dialog{padding:0;align-items:stretch}
+ .case-dialog-panel{width:100%;max-height:100dvh;padding:calc(16px + env(safe-area-inset-top)) 14px calc(20px + env(safe-area-inset-bottom));border-left:0;border-right:0;border-top:0;border-bottom:0}
+ .case-dialog-header h2{font-size:30px}.case-intro{font-size:11px}
+ .case-metrics{gap:6px;margin:16px 0 20px}.case-metrics>div{padding:9px 8px}.case-metrics strong{font-size:13px}.case-metrics span{font-size:6px;line-height:1.4}
+ .case-scale-header{align-items:flex-start;flex-direction:column;gap:8px}
+ .case-scale-options{gap:5px}.case-scale-btn{min-height:40px;padding:8px 4px;font-size:7px;letter-spacing:.05em}
+ .case-ingress-row{grid-template-columns:1fr;gap:5px}
+ .case-arrow{font-size:14px;line-height:10px;transform:rotate(90deg)}
+ .case-node{padding:10px;gap:5px}.case-node strong{font-size:11px}.case-node small{font-size:9px}.case-node em{font-size:8px}
+ .case-branch-label{margin:12px 0 8px;font-size:6px}
+ .case-branch-grid{grid-template-columns:1fr;gap:6px}
+ .case-branch-grid .case-node{display:grid;grid-template-columns:1fr auto;align-items:center}
+ .case-branch-grid .case-node-heading{grid-column:1/-1}
+ .case-branch-grid .case-node strong,.case-branch-grid .case-node small,.case-branch-grid .case-node em{grid-column:1/-1}
+ .case-branch-grid .case-node em{padding-top:0}
+ .case-flow-legend{gap:8px 12px;font-size:7px}
+ .case-explanation{grid-template-columns:1fr;gap:15px;padding:13px;margin-top:10px}
+ .case-explanation-main>p:last-child{font-size:10px}.case-design-notes ul{font-size:9px}
+ .case-transaction-flow{grid-template-columns:1fr;gap:6px;margin-top:8px}
+ .case-transaction-flow>div{padding:10px}.case-transaction-flow p{font-size:9px;margin-top:5px}
+ .case-footnote{font-size:7px}
+}
+@media(prefers-reduced-motion:reduce){.case-study-open,.case-scale-btn,.case-close{transition:none!important}}
