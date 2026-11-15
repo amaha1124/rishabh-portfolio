@@ -39,3 +39,10 @@ git push origin main
 - Preloads the mobile planet image at high priority.
 - Removes the previous v8.7 mobile SVG image assets and references.
 - Updates the homepage headline and About introduction to “Senior Software Engineer”; the employment timeline retains the SDE II designation as the role recorded for that period.
+
+
+## v8.9 — Skip to Contact
+- Added a persistent SKIP TO CONTACT shortcut directly below the TOP control.
+- In desktop 3D mode, it smoothly navigates to the final Contact chapter.
+- In lightweight mobile mode, it scrolls directly to the Contact section while the TOP control smoothly returns to the beginning.
+- Kept the original keyboard-only skip link for accessibility.

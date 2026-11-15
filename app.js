@@ -428,9 +428,9 @@ dots.forEach((dot, index) => dot.addEventListener('click', () => {
 document.querySelector('#prevScene')?.addEventListener('click', () => navigateToChapter((navigationTarget ?? currentChapter) - 1));
 document.querySelector('#nextScene')?.addEventListener('click', () => navigateToChapter((navigationTarget ?? currentChapter) + 1));
 document.querySelector('.brand')?.addEventListener('click', event => { event.preventDefault(); navigateToChapter(0); });
-document.querySelector('#skipToContact')?.addEventListener('click', event => {
+document.querySelectorAll('#skipToContact, #skipContactBtn').forEach(link => link.addEventListener('click', event => {
   if (!document.body.classList.contains('no-webgl')) { event.preventDefault(); navigateToChapter(anchors.length - 1); }
-});
+}));
 let animationFrameId = null;
 let hasRenderedOnce = false;
 const warmLightColor = new THREE.Color(0xffe7cf);

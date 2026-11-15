@@ -169,13 +169,13 @@ body.scene-ready #scene canvas{opacity:1}.vignette{position:fixed;inset:0;z-inde
 
 
 /* Persistent return-to-top control, positioned above the flight controls. */
-.return-top-btn{position:fixed;right:calc(4vw - 5px);bottom:calc(11% + 52px);z-index:14;display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid #c6a77b66;border-radius:2px;background:#071020c9;color:#d7c4a4;font:700 8px var(--mono);letter-spacing:.14em;cursor:pointer;backdrop-filter:blur(10px);transition:background .2s,border-color .2s,transform .2s}
+.return-top-btn{position:fixed;right:calc(4vw - 5px);bottom:calc(11% + 86px);z-index:14;display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid #c6a77b66;border-radius:2px;background:#071020c9;color:#d7c4a4;font:700 8px var(--mono);letter-spacing:.14em;cursor:pointer;backdrop-filter:blur(10px);transition:background .2s,border-color .2s,transform .2s}
 .return-top-btn:hover{background:#c6a77b;color:#10131a;border-color:#c6a77b;transform:translateY(-2px)}
 .return-top-arrow{font-size:15px;line-height:1}
 .return-top-label{font-size:7px}
 .return-top-btn:focus-visible{outline:2px solid #fff;outline-offset:4px}
-@media(max-width:760px){.return-top-btn{right:12px;bottom:calc(10% + 52px);padding:9px 10px;gap:6px}.return-top-arrow{font-size:16px}}
-@media(max-width:760px) and (max-height:740px){.return-top-btn{bottom:calc(10% + 48px)}}
+@media(max-width:760px){.return-top-btn{right:12px;bottom:calc(10% + 90px);padding:9px 10px;gap:6px}.return-top-arrow{font-size:16px}}
+@media(max-width:760px) and (max-height:740px){.return-top-btn{bottom:calc(10% + 86px)}}
 
 
 /* v8.0 functional polish: startup, clipboard feedback, keyboard focus and fallback. */
@@ -335,7 +335,7 @@ body.no-webgl{background-color:#030611;background-image:
 html.mobile-lite,html.mobile-lite body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
 html.mobile-lite body #scene,html.mobile-lite body .vignette,html.mobile-lite body .grain{display:none}
 html.mobile-lite body .hud{position:sticky;top:0;background:#030611;border-bottom:1px solid #c5b69a22}
-html.mobile-lite body .progress,html.mobile-lite body .scene-caption,html.mobile-lite body .bottom-hint,html.mobile-lite body .scene-controls,html.mobile-lite body .return-top-btn{display:none!important}
+html.mobile-lite body .progress,html.mobile-lite body .scene-caption,html.mobile-lite body .bottom-hint,html.mobile-lite body .scene-controls{display:none!important}
 html.mobile-lite body #journey{height:auto;min-height:0;pointer-events:auto}
 html.mobile-lite body .chapter{position:relative;inset:auto;display:block;min-height:0;padding:78px 8vw 48px;visibility:visible!important;opacity:1!important;border-bottom:1px solid #c5b69a22;transition:none}
 html.mobile-lite body .copy,html.mobile-lite body .hero-copy,html.mobile-lite body .copy.left,html.mobile-lite body .copy.right,html.mobile-lite body .contact-copy{position:relative;inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:min(760px,100%)!important;max-width:none;max-height:none;overflow:visible;margin:0 auto;padding:0!important}
@@ -422,3 +422,25 @@ html.mobile-lite body img.mobile-planet::after { display: none !important; }
 @media (max-width: 360px) {
   html.mobile-lite body img.mobile-planet { width: 104px; right: 6%; bottom: 14px; }
 }
+
+
+/* Persistent skip-to-contact shortcut, stacked just below the TOP control. */
+.skip-contact-btn{position:fixed;right:calc(4vw - 5px);bottom:calc(11% + 44px);z-index:14;display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid #c6a77b55;border-radius:2px;background:#071020d9;color:#d7c4a4;text-decoration:none;font:700 8px var(--mono);letter-spacing:.12em;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:background .2s,border-color .2s,transform .2s}
+.skip-contact-btn:hover{background:#c6a77b;color:#10131a;border-color:#c6a77b;transform:translateY(-2px)}
+.skip-contact-btn:focus-visible{outline:2px solid #fff;outline-offset:4px}
+.skip-contact-btn .return-top-arrow{font-size:14px;line-height:1}
+@media(max-width:760px){
+  .skip-contact-btn{right:12px;bottom:calc(10% + 44px);padding:9px 10px;gap:6px;font-size:7px}
+  .return-top-btn{bottom:calc(10% + 88px)}
+}
+@media(max-width:760px) and (max-height:740px){
+  .skip-contact-btn{bottom:calc(10% + 40px)}
+  .return-top-btn{bottom:calc(10% + 82px)}
+}
+html.mobile-lite,html.mobile-lite body{scroll-behavior:smooth}
+html.mobile-lite #contact{scroll-margin-top:70px}
+@media(prefers-reduced-motion:reduce){html.mobile-lite,html.mobile-lite body{scroll-behavior:auto}.skip-contact-btn,.return-top-btn{transition:none!important}}
+
+/* Keep both shortcuts visible in the mobile reading layout even though WebGL is disabled. */
+html.mobile-lite body.no-webgl .return-top-btn,
+html.mobile-lite body.no-webgl .skip-contact-btn{display:flex!important}

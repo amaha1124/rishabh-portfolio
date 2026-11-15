@@ -76,3 +76,13 @@ window.portfolioPauseAmbient = () => {
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) window.portfolioPauseAmbient?.();
 });
+
+
+// In lightweight mobile mode the 3D module is intentionally not loaded, so
+// provide the TOP control with a native scrolling action here.
+const returnTopButton = document.getElementById('returnTopBtn');
+returnTopButton?.addEventListener('click', () => {
+  if (!document.documentElement.classList.contains('mobile-lite')) return;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
+});
