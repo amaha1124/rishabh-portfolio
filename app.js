@@ -50,7 +50,19 @@ for (let i = 0; i < starCount; i++) {
 starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
 starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
 starGeometry.setAttribute('aTwinklePhase', new THREE.BufferAttribute(starTwinklePhases, 1));
-const starMaterial = new THREE.PointsMaterial({ size: 1.05, vertexColors: true, transparent: true, opacity: 0.96, sizeAttenuation: true, depthWrite: false });
+// A radial sprite gives stars a natural circular point instead of square pixels.
+const starSpriteCanvas = document.createElement('canvas');
+starSpriteCanvas.width = starSpriteCanvas.height = 64;
+const starSpriteContext = starSpriteCanvas.getContext('2d');
+const starGlow = starSpriteContext.createRadialGradient(32, 32, 0, 32, 32, 32);
+starGlow.addColorStop(0, 'rgba(255,255,255,1)');
+starGlow.addColorStop(0.16, 'rgba(255,255,255,0.92)');
+starGlow.addColorStop(0.42, 'rgba(225,235,255,0.34)');
+starGlow.addColorStop(1, 'rgba(180,205,255,0)');
+starSpriteContext.fillStyle = starGlow;
+starSpriteContext.fillRect(0, 0, 64, 64);
+const starSprite = new THREE.CanvasTexture(starSpriteCanvas);
+const starMaterial = new THREE.PointsMaterial({ map: starSprite, size: 2.0, vertexColors: true, transparent: true, opacity: 0.96, sizeAttenuation: true, depthWrite: false, alphaTest: 0.025 });
 // Twinkle in the CPU-updated vertex colours rather than patching Three.js shaders.
 // This is deliberately simple and reliable across desktop and mobile WebGL drivers.
 const baseStarColors = starColors.slice();
@@ -85,12 +97,12 @@ function canvasTexture(base, accent, mode = 'bands') {
 const textureLoader = new THREE.TextureLoader();
 textureLoader.setCrossOrigin('anonymous');
 const planetTextureUrls = {
-  Earth: 'https://www.solarsystemscope.com/textures/download/2k_earth_daymap.jpg',
-  Moon: 'https://www.solarsystemscope.com/textures/download/2k_moon.jpg',
-  Saturn: 'https://www.solarsystemscope.com/textures/download/2k_saturn.jpg',
-  Mars: 'https://www.solarsystemscope.com/textures/download/2k_mars.jpg',
-  Ice: 'https://www.solarsystemscope.com/textures/download/2k_neptune.jpg',
-  Portal: 'https://www.solarsystemscope.com/textures/download/2k_jupiter.jpg'
+  Earth: 'https://cdn.solarsystemscope.com/textures/download/2k_earth_daymap.jpg',
+  Moon: 'https://cdn.solarsystemscope.com/textures/download/2k_moon.jpg',
+  Saturn: 'https://cdn.solarsystemscope.com/textures/download/2k_saturn.jpg',
+  Mars: 'https://cdn.solarsystemscope.com/textures/download/2k_mars.jpg',
+  Ice: 'https://cdn.solarsystemscope.com/textures/download/2k_neptune.jpg',
+  Portal: 'https://cdn.solarsystemscope.com/textures/download/2k_jupiter.jpg'
 };
 function loadPlanetTexture(name, fallback, material) {
   const url = planetTextureUrls[name];
@@ -305,8 +317,9 @@ function animate() {
   starGeometry.attributes.color.needsUpdate = true;
   planets.forEach((planet, index) => {
     // Slow but clearly perceptible axial rotation, independent of camera movement.
-    const spin = [0.032, 0.022, 0.018, 0.028, 0.016, 0.024][index];
-    planet.mesh.rotation.y += delta * spin;
+    const spin = [0.055, 0.042, 0.032, 0.048, 0.036, 0.044][index];
+    // Set rotation from elapsed time so every planet spins continuously and independently.
+    planet.mesh.rotation.y = elapsed * spin;
   });
   updateChapter();
   renderer.render(scene, camera);
