@@ -69,3 +69,12 @@ Planet surface textures: Solar System Scope, https://www.solarsystemscope.com/te
 - Each planet assembly now rotates independently around its own local axis using frame delta time. This rotates the surface, atmosphere and ring assembly together instead of rotating only the first sphere mesh.
 - Procedural canvas maps remain assigned immediately and are retained if an image request fails or returns an invalid image.
 - Solar System Scope planetary texture maps are distributed under CC BY 4.0. Source: https://www.solarsystemscope.com/textures/ .
+
+## v7.5 visual atmosphere pass
+
+- Added locally generated, softly layered nebula clouds; no additional background image downloads are required.
+- Added restrained additive atmospheric glow shells around the planets, with distinct hues for Earth, Mars, Neptune and the final portal.
+- Added a sparse, low-poly asteroid field positioned outside the main flight corridor. It uses instanced rendering and a reduced count on small screens.
+- Added gradual warm-to-cool lighting changes as the camera travels deeper into the experience.
+- Added a subtle breathing glow to the final portal near the contact destination.
+- Kept the existing top progress bar, guided journey, Return to Top control, planet texture loading and responsive flight controls unchanged.
