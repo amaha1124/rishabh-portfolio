@@ -179,9 +179,9 @@ window.addEventListener('touchmove', event => {
     // Swipe up moves along the camera's forward vector; horizontal swipe strafes.
     const forward = new THREE.Vector3(Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), -Math.cos(yaw) * Math.cos(pitch));
     const right = new THREE.Vector3(Math.cos(yaw), 0, Math.sin(yaw));
-    velocity.addScaledVector(forward, -dy * 0.62);
-    velocity.addScaledVector(right, -dx * 0.42);
-    velocity.clampLength(0, 58);
+    velocity.addScaledVector(forward, -dy * 1.05);
+    velocity.addScaledVector(right, -dx * 0.68);
+    velocity.clampLength(0, 88);
     lastScrollAt = performance.now();
     if (event.cancelable) event.preventDefault();
   }
