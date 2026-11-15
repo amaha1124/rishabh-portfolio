@@ -142,31 +142,7 @@
       </div>
       <div class="case-flow-legend"><span><i class="flow-redis"></i> Cached read / cache miss fallback</span><span><i class="flow-db"></i> Durable write</span><span><i class="flow-kafka"></i> Asynchronous event</span></div>
 
-      <section class="case-request-lab" aria-labelledby="caseRequestLabTitle">
-        <div class="case-request-heading">
-          <div><p class="case-kicker">TRACE A REQUEST</p><h4 id="caseRequestLabTitle">See the request move through the system.</h4></div>
-          <span class="case-simulation-label">SIMULATED · NO LIVE BACKEND CALL</span>
-        </div>
-        <div class="case-request-toolbar">
-          <div class="case-request-scenarios" role="group" aria-label="Choose request scenario">
-            <button type="button" class="case-scenario-btn is-selected" data-flow-scenario="eligibility-hit" aria-pressed="true">Eligibility · cache hit</button>
-            <button type="button" class="case-scenario-btn" data-flow-scenario="eligibility-miss" aria-pressed="false">Eligibility · cache miss</button>
-            <button type="button" class="case-scenario-btn" data-flow-scenario="bonus-write" aria-pressed="false">Bonus lifecycle write</button>
-          </div>
-          <button type="button" class="case-run-btn" id="runCaseFlowBtn">RUN REQUEST <span aria-hidden="true">↗</span></button>
-        </div>
-        <div class="case-flow-track-shell">
-          <div class="case-flow-track" id="caseFlowTrack" aria-label="Request path"></div>
-        </div>
-        <div class="case-flow-status-row">
-          <p id="caseFlowStatus" role="status" aria-live="polite" aria-atomic="true">Select a scenario, then run it to trace the request.</p>
-          <span id="caseFlowCounter" class="case-flow-counter">READY</span>
-        </div>
-        <ol class="case-flow-log" id="caseFlowLog" aria-label="Request execution steps">
-          <li class="is-current"><span>READY</span><p>The simulator will highlight each component as the request reaches it.</p></li>
-        </ol>
-        <p class="case-flow-disclaimer">This is a client-side teaching simulation. It illustrates request sequencing and component responsibilities; it does not send traffic, measure latency or connect to production systems.</p>
-      </section>
+
     </div>
 
     <div class="case-explanation">

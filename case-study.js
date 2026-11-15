@@ -80,199 +80,23 @@
   };
   const scaleButtons = [...dialog.querySelectorAll('[data-scale]')];
   const notesList = document.getElementById('caseScaleNotes');
-  const scenarioButtons = [...dialog.querySelectorAll('[data-flow-scenario]')];
-  const runFlowButton = document.getElementById('runCaseFlowBtn');
-  const flowTrack = document.getElementById('caseFlowTrack');
-  const flowStatus = document.getElementById('caseFlowStatus');
-  const flowCounter = document.getElementById('caseFlowCounter');
-  const flowLog = document.getElementById('caseFlowLog');
   let lastFocusedElement = null;
-  let selectedScenario = 'eligibility-hit';
-  let currentScale = '1';
-  let flowTimer = null;
-  let flowRunId = 0;
-  let flowRunning = false;
-
-  const flowScenarios = {
-    'eligibility-hit': {
-      name: 'Eligibility · cache hit',
-      stages: [
-        { node: 'client', label: 'LOBBY', message: 'The casino lobby requests player eligibility and upcoming-bonus information.' },
-        { node: 'gateway', label: 'INGRESS', message: 'The request enters through the configured API route and is sent to an application instance.' },
-        { node: 'service', label: 'SPRING BOOT', message: 'The service validates the request and checks the hot-read cache path.' },
-        { node: 'redis', label: 'REDIS HIT', message: 'Redis returns the cached eligibility data. PostgreSQL is not needed for this read.' },
-        { node: 'service', label: 'RESPONSE', message: 'Spring Boot applies response rules and prepares the eligibility result.' },
-        { node: 'client', label: 'LOBBY', message: 'The eligibility response returns to the lobby.' }
-      ]
-    },
-    'eligibility-miss': {
-      name: 'Eligibility · cache miss',
-      stages: [
-        { node: 'client', label: 'LOBBY', message: 'The casino lobby requests player eligibility and upcoming-bonus information.' },
-        { node: 'gateway', label: 'INGRESS', message: 'The request enters through the configured API route and is sent to an application instance.' },
-        { node: 'service', label: 'SPRING BOOT', message: 'The service validates the request and checks Redis for the requested data.' },
-        { node: 'redis', label: 'REDIS MISS', message: 'The requested cache entry is not present or is no longer usable, so the service follows its database fallback path.' },
-        { node: 'db', label: 'POSTGRESQL READ', message: 'PostgreSQL supplies the durable campaign and player state needed to resolve the request.' },
-        { node: 'service', label: 'RESPONSE', message: 'Spring Boot assembles the eligibility result. A cache refresh can follow the configured cache policy.' },
-        { node: 'client', label: 'LOBBY', message: 'The eligibility response returns to the lobby.' }
-      ]
-    },
-    'bonus-write': {
-      name: 'Bonus lifecycle · durable write',
-      stages: [
-        { node: 'client', label: 'PLAYER ACTION', message: 'A player or casino workflow submits a bonus lifecycle action, such as assignment, wager, cancellation or expiry.' },
-        { node: 'gateway', label: 'INGRESS', message: 'The request is routed to the application tier.' },
-        { node: 'service', label: 'SPRING BOOT', message: 'The service validates the operation and executes the relevant business rules.' },
-        { node: 'db', label: 'POSTGRESQL COMMIT', message: 'The transactional state change is persisted in PostgreSQL, the durable system of record.' },
-        { node: 'client', label: 'API RESPONSE', message: 'The API can return after its synchronous transaction requirements are satisfied.' },
-        { node: 'kafka', label: 'KAFKA EVENT', message: 'The corresponding event path carries work for asynchronous downstream processing.' },
-        { node: 'kafka', label: 'CONSUMER', message: 'Independent consumers process events for downstream workflows and reporting.' }
-      ]
-    }
-  };
-
-  function clearFlowHighlights() {
-    dialog.querySelectorAll('[data-arch-node]').forEach(node => node.classList.remove('is-flow-active', 'is-flow-complete'));
-  }
-
-  function stageLabel(stage, profile) {
-    const profileLabels = {
-      gateway: profile.gatewayTitle,
-      service: profile.serviceTitle,
-      redis: profile.redisTitle,
-      db: profile.dbTitle,
-      kafka: profile.kafkaTitle
-    };
-    if (stage.node === 'redis' && stage.label === 'REDIS MISS') return `${profileLabels.redis} · MISS`;
-    if (stage.node === 'redis') return `${profileLabels.redis} · HIT`;
-    if (stage.node === 'db' && stage.label === 'POSTGRESQL COMMIT') return `${profileLabels.db} · COMMIT`;
-    if (stage.node === 'db') return `${profileLabels.db} · READ`;
-    if (stage.node === 'kafka' && stage.label === 'CONSUMER') return 'DOWNSTREAM CONSUMER';
-    if (stage.node === 'kafka') return profileLabels.kafka;
-    if (stage.node === 'service') return profileLabels.service;
-    if (stage.node === 'gateway') return profileLabels.gateway;
-    return stage.label;
-  }
-
-  function renderFlowPreview() {
-    if (!flowTrack || !flowLog) return;
-    const profile = scaleProfiles[currentScale];
-    const scenario = flowScenarios[selectedScenario];
-    flowTrack.replaceChildren();
-    flowLog.replaceChildren();
-    clearFlowHighlights();
-    scenario.stages.forEach((stage, index) => {
-      const chip = document.createElement('span');
-      chip.className = 'case-flow-step';
-      chip.dataset.flowIndex = String(index);
-      chip.textContent = stageLabel(stage, profile);
-      flowTrack.appendChild(chip);
-
-      const item = document.createElement('li');
-      const label = document.createElement('span');
-      label.textContent = `${String(index + 1).padStart(2, '0')} / ${stage.label}`;
-      const description = document.createElement('p');
-      description.textContent = stage.message;
-      item.append(label, description);
-      flowLog.appendChild(item);
-    });
-    if (flowStatus) flowStatus.textContent = `${scenario.name} · Ready to simulate at ${profile.clientTitle}.`;
-    if (flowCounter) flowCounter.textContent = `${scenario.stages.length} STEPS`;
-    if (runFlowButton) { runFlowButton.disabled = false; runFlowButton.innerHTML = 'RUN REQUEST <span aria-hidden="true">↗</span>'; }
-  }
-
-  function stopFlow(reset = false) {
-    flowRunId += 1;
-    if (flowTimer !== null) window.clearTimeout(flowTimer);
-    flowTimer = null;
-    flowRunning = false;
-    scenarioButtons.forEach(button => { button.disabled = false; });
-    if (runFlowButton) runFlowButton.disabled = false;
-    clearFlowHighlights();
-    if (reset) renderFlowPreview();
-  }
-
-  function runFlowStep(runId, index) {
-    if (runId !== flowRunId || dialog.hidden) return;
-    const profile = scaleProfiles[currentScale];
-    const scenario = flowScenarios[selectedScenario];
-    const stages = scenario.stages;
-    const stage = stages[index];
-    const chips = [...flowTrack.querySelectorAll('.case-flow-step')];
-    const logItems = [...flowLog.children];
-
-    chips.forEach((chip, i) => {
-      chip.classList.toggle('is-active', i === index);
-      chip.classList.toggle('is-complete', i < index);
-    });
-    logItems.forEach((item, i) => {
-      item.classList.toggle('is-current', i === index);
-      item.classList.toggle('is-done', i < index);
-    });
-    clearFlowHighlights();
-    const activeNode = dialog.querySelector(`[data-arch-node="${stage.node}"]`);
-    if (activeNode) activeNode.classList.add('is-flow-active');
-    stages.slice(0, index).forEach(previous => {
-      const node = dialog.querySelector(`[data-arch-node="${previous.node}"]`);
-      if (node && node !== activeNode) node.classList.add('is-flow-complete');
-    });
-    if (flowStatus) flowStatus.textContent = `${stageLabel(stage, profile)} — ${stage.message}`;
-    if (flowCounter) flowCounter.textContent = `${String(index + 1).padStart(2, '0')} / ${String(stages.length).padStart(2, '0')}`;
-    if (chips[index] && typeof chips[index].scrollIntoView === 'function') {
-      chips[index].scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-    }
-
-    if (index < stages.length - 1) {
-      const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 100 : 820;
-      flowTimer = window.setTimeout(() => runFlowStep(runId, index + 1), delay);
-      return;
-    }
-    flowRunning = false;
-    flowTimer = null;
-    scenarioButtons.forEach(button => { button.disabled = false; });
-    if (runFlowButton) { runFlowButton.disabled = false; runFlowButton.innerHTML = 'RUN AGAIN <span aria-hidden="true">↻</span>'; }
-    if (flowStatus) flowStatus.textContent = 'Simulation complete. The request path is illustrative; no live backend request was sent.';
-    if (flowCounter) flowCounter.textContent = 'COMPLETE';
-    chips[index]?.classList.add('is-complete');
-    logItems[index]?.classList.add('is-done');
-  }
-
-  function startFlow() {
-    if (flowRunning) return;
-    stopFlow(false);
-    flowRunning = true;
-    const runId = flowRunId;
-    scenarioButtons.forEach(button => { button.disabled = true; });
-    if (runFlowButton) { runFlowButton.disabled = true; runFlowButton.textContent = 'RUNNING…'; }
-    runFlowStep(runId, 0);
-  }
-
-  function selectScenario(scenario) {
-    if (!flowScenarios[scenario]) return;
-    stopFlow(false);
-    selectedScenario = scenario;
-    scenarioButtons.forEach(button => {
-      const selected = button.dataset.flowScenario === scenario;
-      button.classList.toggle('is-selected', selected);
-      button.setAttribute('aria-pressed', String(selected));
-    });
-    renderFlowPreview();
-  }
 
   function selectScale(scale) {
     const profile = scaleProfiles[scale];
     if (!profile) return;
-    currentScale = scale;
-    stopFlow(false);
+
     scaleButtons.forEach(button => {
       const selected = button.dataset.scale === scale;
       button.classList.toggle('is-selected', selected);
       button.setAttribute('aria-pressed', String(selected));
     });
+
     Object.entries(fields).forEach(([key, id]) => {
       const element = document.getElementById(id);
       if (element) element.textContent = profile[key];
     });
+
     if (notesList) {
       notesList.replaceChildren(...profile.notes.map(note => {
         const item = document.createElement('li');
@@ -280,7 +104,6 @@
         return item;
       }));
     }
-    renderFlowPreview();
   }
 
   function openDialog() {
@@ -294,7 +117,6 @@
 
   function closeDialog() {
     if (dialog.hidden) return;
-    stopFlow(false);
     dialog.hidden = true;
     document.body.classList.remove('case-dialog-open');
     openButton.setAttribute('aria-expanded', 'false');
@@ -308,23 +130,33 @@
     if (event.target === dialog || event.target.matches('[data-case-close="true"]')) closeDialog();
   });
   scaleButtons.forEach(button => button.addEventListener('click', () => selectScale(button.dataset.scale)));
-  scenarioButtons.forEach(button => button.addEventListener('click', () => selectScenario(button.dataset.flowScenario)));
-  runFlowButton?.addEventListener('click', startFlow);
   selectScale('1');
 
   // Keep keyboard focus inside the modal and stop portfolio flight controls from reacting to it.
   window.addEventListener('keydown', event => {
     if (dialog.hidden) return;
     if (event.key === 'Escape') {
-      event.preventDefault(); event.stopImmediatePropagation(); closeDialog(); return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      closeDialog();
+      return;
     }
     if (event.key === 'Tab') {
       const focusable = [...dialog.querySelectorAll('button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])')]
         .filter(element => !element.hidden && element.offsetParent !== null);
-      if (!focusable.length) { event.preventDefault(); return; }
-      const first = focusable[0], last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      if (!focusable.length) {
+        event.preventDefault();
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     }
     event.stopImmediatePropagation();
   }, true);
