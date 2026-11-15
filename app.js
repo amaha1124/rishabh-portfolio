@@ -7,15 +7,17 @@ if (!container) throw new Error('Missing #scene container');
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x030611);
 scene.fog = new THREE.FogExp2(0x030611, 0.0018);
-const camera = new THREE.PerspectiveCamera(48, innerWidth / innerHeight, 0.1, 1800);
+const camera = new THREE.PerspectiveCamera(matchMedia('(max-width: 760px)').matches ? 58 : 48, innerWidth / innerHeight, 0.1, 1800);
 camera.position.set(0, 0, 23);
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+const isSmallScreen = matchMedia('(max-width: 760px)').matches;
+const isLowPower = isSmallScreen || matchMedia('(max-width: 1100px)').matches;
+const renderer = new THREE.WebGLRenderer({ antialias: !isSmallScreen, alpha: false, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, isSmallScreen ? 1.35 : 1.75));
 renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
-renderer.shadowMap.enabled = true;
+renderer.shadowMap.enabled = !isLowPower;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 container.appendChild(renderer.domElement);
 
@@ -30,7 +32,7 @@ scene.add(fillLight);
 
 // Deep star field.
 const starGeometry = new THREE.BufferGeometry();
-const starCount = 3200;
+const starCount = isSmallScreen ? 1500 : isLowPower ? 2200 : 3200;
 const starPositions = new Float32Array(starCount * 3);
 const starColors = new Float32Array(starCount * 3);
 for (let i = 0; i < starCount; i++) {
@@ -160,7 +162,15 @@ let touchX = 0, touchY = 0;
 window.addEventListener('touchstart', event => { if (event.touches.length === 1) { touchX = event.touches[0].clientX; touchY = event.touches[0].clientY; } }, { passive: true });
 window.addEventListener('touchmove', event => {
   if (event.touches.length !== 1) return;
-  const touch = event.touches[0]; yaw -= (touch.clientX - touchX) * 0.003; pitch = THREE.MathUtils.clamp(pitch - (touch.clientY - touchY) * 0.0025, -1.15, 1.15);
+  const touch = event.touches[0];
+  const dx = touch.clientX - touchX, dy = touch.clientY - touchY;
+  const overCopy = event.target.closest && event.target.closest('.copy');
+  if (overCopy) { touchX = touch.clientX; touchY = touch.clientY; return; }
+  // On touch screens a one-finger vertical swipe is the flight throttle; horizontal swipe steers.
+  velocity.z += dy * 0.16;
+  velocity.x -= dx * 0.09;
+  velocity.z = THREE.MathUtils.clamp(velocity.z, -34, 34);
+  velocity.x = THREE.MathUtils.clamp(velocity.x, -22, 22);
   touchX = touch.clientX; touchY = touch.clientY;
 }, { passive: true });
 
@@ -215,5 +225,5 @@ function animate() {
 animate();
 window.addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, matchMedia('(max-width: 760px)').matches ? 1.35 : 1.75)); renderer.setSize(innerWidth, innerHeight);
 });

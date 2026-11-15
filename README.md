@@ -34,3 +34,10 @@ Import the GitHub repository as a static project. Framework preset: Other; Build
 - The resume download points to `resume.pdf` in the site root.
 - Music is intentionally not autoplayed. Visitors start it with the sound control.
 - Three.js is loaded from jsDelivr, so the site needs internet access.
+
+## Responsive release (v6.1)
+- Responsive layouts for desktop, laptop, tablet, portrait mobile, and landscape mobile.
+- Mobile content panels can scroll internally without scrolling the document.
+- Touch swipes outside content panels control flight; horizontal swipes strafe.
+- Reduced WebGL pixel ratio, star count, antialiasing, and shadow cost on smaller devices.
+- Desktop keyboard, mouse, wheel, and trackpad navigation remain available.

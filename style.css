@@ -30,3 +30,59 @@
 .dots button.selected{background:#c6a77b;border-color:#c6a77b;box-shadow:0 0 10px #c6a77b55}
 .progress span{background:linear-gradient(90deg,#c6a77b,#aeb9c9);box-shadow:none}
 @media(max-width:760px){.experience-mini{margin-top:14px}.experience-mini p{font-size:6px}.education-line{font-size:6px}}
+
+/* Responsive layout: preserve the cinematic scene while making every content panel readable. */
+#journey{height:100dvh;min-height:100dvh}
+.chapter{min-height:100dvh}
+.copy{max-height:calc(100dvh - 150px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#c6a77b55 transparent}
+.copy::-webkit-scrollbar{width:4px}.copy::-webkit-scrollbar-thumb{background:#c6a77b55;border-radius:8px}
+@media (max-width:1100px){
+ .hero-copy{left:8%;max-width:52vw}.copy.left{left:8%;width:48%}.copy.right{right:8%;width:48%}
+ .mission-copy{width:52%!important}.hero-copy h1{font-size:clamp(68px,9vw,112px)}
+}
+@media (max-width:760px){
+ html,body{height:100%;min-height:100%;overscroll-behavior:none}
+ .hud{height:58px;padding:0 14px;background:linear-gradient(#030611ee,#03061188)}
+ .brand{gap:8px;font-size:8px;letter-spacing:.1em}.brand-mark{width:28px;height:28px}
+ .hud-right{gap:7px;font-size:6px;letter-spacing:.04em}.hud-right #sectorLabel{max-width:118px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ #soundBtn{font-size:7px!important;padding:7px 8px!important}
+ .progress{top:57px}
+ .hero-copy{left:7%;top:15%;width:86%;max-width:none;max-height:74dvh}
+ .hero-copy h1{font-size:clamp(60px,16vw,100px)}.kicker{margin:24px 0 12px;font-size:8px}
+ .lead{font-size:clamp(12px,3.4vw,15px);line-height:1.65;margin-top:18px}
+ .hero-foot{flex-wrap:wrap;gap:10px;margin-top:24px;font-size:6px}
+ .copy.left,.copy.right,.contact-copy{left:6%;right:auto;top:10%;width:88%;max-height:calc(100dvh - 142px);padding:4px 6px 16px 0}
+ .copy h2{font-size:clamp(36px,9vw,56px);line-height:1.02;margin-bottom:12px}
+ .body{font-size:clamp(11px,2.8vw,13px);line-height:1.65;max-width:100%;margin:9px 0}
+ .stats{gap:clamp(12px,5vw,24px);flex-wrap:wrap;margin-top:16px}.stats strong{font-size:clamp(19px,5vw,24px)}.stats small{font-size:6px}
+ .experience-mini{margin-top:14px;padding-top:8px}.experience-mini p{font-size:6px;line-height:1.65;overflow-wrap:anywhere}
+ .education-line{font-size:6px;line-height:1.6}
+ .tech-grid{gap:6px;margin-top:14px}.tech-grid span,.future-list span{font-size:7px;padding:7px 8px}
+ .micro{font-size:7px;line-height:1.6}.mission-copy{top:8%!important;width:88%!important}
+ .mission{margin:10px 0;padding-left:10px}.mission h3{font-size:13px}.mission p{font-size:10px;line-height:1.55}.mission small,.stack{font-size:6px}.fineprint{font-size:6px;line-height:1.6}
+ .future-list{gap:7px;margin-top:14px}.contact-copy{top:11%;max-height:calc(100dvh - 140px)}.contact-copy h2{font-size:clamp(37px,9vw,58px)}
+ .links{gap:12px;flex-wrap:wrap;margin-top:18px}.links a{font-size:7px}.links .primary-link{padding:11px 12px}.copyright{font-size:6px;margin-top:28px;line-height:1.8}
+ .scene-caption{left:14px;bottom:max(12px,env(safe-area-inset-bottom));font-size:6px;gap:8px}
+ .world-tag{display:none}.dots{right:12px;top:auto;bottom:16px;transform:none;display:flex;gap:8px}.dots button{width:6px;height:6px}.dots button.selected{width:18px;height:6px;border-radius:5px}
+ .bottom-hint{display:none}.scene-controls{right:12px;bottom:54px;gap:6px}.scene-controls button{width:34px;height:34px}
+ .copy{touch-action:pan-y}
+}
+@media(max-width:420px){
+ .hud-right #sectorLabel,.hud-sep{display:none}.hero-copy{top:14%}.hero-copy h1{font-size:clamp(58px,17vw,78px)}
+ .copy.left,.copy.right,.contact-copy{top:9%;width:89%;left:5.5%;max-height:calc(100dvh - 130px)}
+ .mission-copy{top:7%!important}.mission{margin:8px 0}.mission h3{font-size:12px}
+ .stats{gap:12px}.stats strong{font-size:19px}.stats small{font-size:5px}
+ .links{gap:10px}.links a{font-size:6px}
+}
+@media(max-height:650px) and (min-width:761px){
+ .hero-copy{top:14%}.copy.left,.copy.right,.contact-copy{top:10%;max-height:78vh}.mission-copy{top:6%!important}
+ .kicker{margin-top:20px}.hero-foot{margin-top:24px}.copyright{margin-top:24px}
+}
+@media(orientation:landscape) and (max-height:520px){
+ .hero-copy{top:12%;left:8%;width:55%}.hero-copy h1{font-size:clamp(48px,9vh,72px)}.kicker{margin:12px 0 8px}.lead{margin-top:10px;font-size:11px}.hero-foot{margin-top:12px}
+ .copy.left,.copy.right,.contact-copy{top:10%;max-height:76dvh;width:56%}.copy h2{font-size:clamp(30px,7vh,44px)}
+ .mission-copy{top:6%!important;width:60%!important}.mission{margin:6px 0}.mission p{font-size:9px}
+ .scene-controls{bottom:12px;right:12px}.dots{right:12px;top:50%;bottom:auto;display:grid}.dots button.selected{width:6px;height:18px}
+ .scene-caption{bottom:12px}
+}
+@media(prefers-reduced-motion:reduce){.copy{scroll-behavior:auto}}
