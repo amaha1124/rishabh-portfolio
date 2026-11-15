@@ -41,3 +41,6 @@ Import the GitHub repository as a static project. Framework preset: Other; Build
 - Touch swipes outside content panels control flight; horizontal swipes strafe.
 - Reduced WebGL pixel ratio, star count, antialiasing, and shadow cost on smaller devices.
 - Desktop keyboard, mouse, wheel, and trackpad navigation remain available.
+
+
+Mobile interaction update: mobile directional pads are removed. Swipe vertically on the scene to fly forward/backward and horizontally to strafe. Text panels retain native vertical scrolling when their content overflows. Mobile scene shortcut buttons are hidden.

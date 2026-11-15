@@ -157,37 +157,36 @@ window.addEventListener('pointermove', event => {
 window.addEventListener('pointerup', () => { dragging = false; });
 window.addEventListener('pointercancel', () => { dragging = false; });
 
-// Touch exploration: swipe on the open scene to fly; content panels retain native vertical scrolling.
-let touchX = 0, touchY = 0;
+// Touch-first exploration: one-finger swipe controls continuous flight across the scene.
+// Text panels keep native vertical scrolling when their content overflows.
+let touchX = 0, touchY = 0, touchActive = false;
+let touchTargetIsCopy = false;
 window.addEventListener('touchstart', event => {
-  if (event.touches.length === 1) { touchX = event.touches[0].clientX; touchY = event.touches[0].clientY; }
+  if (event.touches.length !== 1) { touchActive = false; return; }
+  const t = event.touches[0];
+  touchX = t.clientX; touchY = t.clientY; touchActive = true;
+  touchTargetIsCopy = !!(event.target.closest && event.target.closest('.copy'));
 }, { passive: true });
 window.addEventListener('touchmove', event => {
-  if (event.touches.length !== 1) return;
-  const touch = event.touches[0];
-  const dx = touch.clientX - touchX, dy = touch.clientY - touchY;
-  const overCopy = event.target.closest && event.target.closest('.copy');
-  const overFlightControl = event.target.closest && event.target.closest('.touch-flight');
-  if (!overCopy && !overFlightControl) {
-    // Finger moves up to fly forward; finger moves down to reverse.
-    velocity.z += dy * 0.30;
-    velocity.x -= dx * 0.20;
-    velocity.z = THREE.MathUtils.clamp(velocity.z, -46, 46);
-    velocity.x = THREE.MathUtils.clamp(velocity.x, -30, 30);
+  if (!touchActive || event.touches.length !== 1) return;
+  const t = event.touches[0];
+  const dx = t.clientX - touchX, dy = t.clientY - touchY;
+  const copy = touchTargetIsCopy ? (event.target.closest && event.target.closest('.copy')) : null;
+  const canScrollCopy = copy && copy.scrollHeight > copy.clientHeight + 2;
+  const movingWithinCopy = canScrollCopy && Math.abs(dy) > Math.abs(dx);
+  if (!movingWithinCopy) {
+    // Natural finger movement: swipe up = fly forward, swipe down = reverse.
+    velocity.z += dy * 0.38;
+    velocity.x -= dx * 0.28;
+    velocity.z = THREE.MathUtils.clamp(velocity.z, -52, 52);
+    velocity.x = THREE.MathUtils.clamp(velocity.x, -34, 34);
+    lastScrollAt = performance.now();
+    if (event.cancelable) event.preventDefault();
   }
-  touchX = touch.clientX; touchY = touch.clientY;
-}, { passive: true });
-
-// Hold-to-fly touch buttons are global and independent of the visible content chapter.
-document.querySelectorAll('[data-flight]').forEach(button => {
-  const action = button.dataset.flight;
-  const start = event => { event.preventDefault(); pressed.add(action); button.classList.add('is-pressed'); button.setPointerCapture?.(event.pointerId); };
-  const stop = event => { event.preventDefault(); pressed.delete(action); button.classList.remove('is-pressed'); };
-  button.addEventListener('pointerdown', start);
-  button.addEventListener('pointerup', stop);
-  button.addEventListener('pointercancel', stop);
-  button.addEventListener('lostpointercapture', stop);
-});
+  touchX = t.clientX; touchY = t.clientY;
+}, { passive: false });
+window.addEventListener('touchend', () => { touchActive = false; }, { passive: true });
+window.addEventListener('touchcancel', () => { touchActive = false; }, { passive: true });
 
 // HUD landmarks are shortcuts that set a gentle cruise velocity, not page transitions.
 dots.forEach((dot, index) => dot.addEventListener('click', () => {
