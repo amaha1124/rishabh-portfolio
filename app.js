@@ -54,7 +54,6 @@ const stops=[
  {cam:[0,0,-210],look:[0,0,-232],planet:5}
 ];
 let current=0,transition=false,targetCam=new THREE.Vector3(...stops[0].cam),targetLook=new THREE.Vector3(...stops[0].look),look=new THREE.Vector3(...stops[0].look),touchY=0;
-let wheelAccumulator=0,wheelResetTimer=null,lastWheelMove=0;
 const chapters=[...document.querySelectorAll('.chapter')],dots=[...document.querySelectorAll('.dots button')];
 const names=['DEEP SPACE','THE ORIGIN','SYSTEMS PLANET','FIELD MISSIONS','THE NEXT FRONTIER','OPEN CHANNEL'];
 function go(n){n=Math.max(0,Math.min(5,n));if(n===current||transition)return;transition=true;current=n;targetCam.set(...stops[n].cam);targetLook.set(...stops[n].look);chapters.forEach((c,i)=>c.classList.toggle('active',i===n));dots.forEach((d,i)=>d.classList.toggle('selected',i===n));document.querySelector('#sectorLabel').textContent=`SECTOR 0${n} · ${names[n]}`;document.querySelector('#captionNumber').textContent=`0${n}`;document.querySelector('#captionName').textContent=names[n];document.querySelector('#progress').style.width=`${n/5*100}%`;setTimeout(()=>transition=false,850)}
