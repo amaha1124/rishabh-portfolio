@@ -1,12 +1,25 @@
-# Rishabh Arora — Space Portfolio v8.11
+# Rishabh Arora — Space Portfolio v8.12
 
-## Mobile visual-quality pass
-- Replaces the lightweight mobile starfield with a local, resolution-independent SVG background.
-- Replaces the CSS-gradient Earth with a local vector Earth illustration.
-- Removes `background-attachment: fixed` from the mobile fallback path to avoid mobile-browser repaint tearing.
-- Removes mobile blur from the case-study backdrop.
-- Optional mobile 3D mode now renders at a minimum of 1.0 device-pixel ratio, with antialiasing enabled and slightly smoother planet geometry.
-- Desktop scene, layout and interaction remain unchanged.
+## v8.12 — Recruiter Mode + Technology Constellation
+
+### Recruiter Mode
+- Added a persistent `RECRUITER MODE` action in the header (compact `PROFILE` label on narrow mobile screens).
+- Opens a lightweight, accessible professional-profile dialog with a summary, selected portfolio metrics, career history, engineering focus, education, resume download, email and profile links.
+- Includes a shortcut from the profile to the existing Bonus Promotions case study.
+- Does not state job availability or add unsupported personal details.
+
+### Technology Constellation
+- Added an `OPEN TECHNOLOGY CONSTELLATION` action in the Systems chapter.
+- Added a selectable, grouped map of languages/frameworks, distributed systems, data/infrastructure, and AI/quality/observability technologies.
+- Selecting a technology updates its description, related work and connected technologies.
+- Technologies linked to Bonus Promotions can open the existing case study directly.
+- Implemented with HTML, CSS and small DOM interactions; no new canvas, WebGL scene, external images or dependencies.
+
+### Compatibility and accessibility
+- Both experiences work in desktop 3D mode and mobile lightweight mode.
+- Dialogs include accessible names, focus management, Tab focus trapping, Escape-to-close, backdrop close and return focus to the opener.
+- Dialog gestures are prevented from being interpreted as 3D flight inputs.
+- Existing Career Orbit, Bonus Promotions scale selector, contact shortcuts, mobile fallback and desktop scene are retained.
 
 ## Build and deploy
 Requires Node.js 22.12 or later.
@@ -19,42 +32,9 @@ npm run build
 Deploy the generated `dist` directory through Vercel.
 
 ## Git commands
+
 ```bash
 git add .
-git commit -m "Improve mobile visual sharpness and rendering quality"
+git commit -m "Add recruiter mode and technology constellation"
 git push origin main
 ```
-
-
-## v8.8 mobile visual fix
-- Replaces the mobile SVG background image with lightweight CSS-rendered star points to avoid background-image scaling/compositing artifacts.
-- Uses a high-resolution 1440x1440 lossless WebP Earth image via a normal `<img>` element instead of an SVG CSS background.
-- Updates the homepage role headline to “Senior Software Engineer.”
-- Updates the About section intro to use the same role wording; employer timeline continues to show the supplied SDE II designation.
-
-
-## v8.8 mobile visual fix
-- Replaces the mobile SVG background image with CSS-rendered star points to avoid SVG background scaling/compositing artifacts on mobile browsers.
-- Replaces the mobile planet CSS background with a normal `<img>` element backed by a 960x960 lossless WebP asset.
-- Preloads the mobile planet image at high priority.
-- Removes the previous v8.7 mobile SVG image assets and references.
-- Updates the homepage headline and About introduction to “Senior Software Engineer”; the employment timeline retains the SDE II designation as the role recorded for that period.
-
-
-## v8.9 — Skip to Contact
-- Added a persistent SKIP TO CONTACT shortcut directly below the TOP control.
-- In desktop 3D mode, it smoothly navigates to the final Contact chapter.
-- In lightweight mobile mode, it scrolls directly to the Contact section while the TOP control smoothly returns to the beginning.
-- Kept the original keyboard-only skip link for accessibility.
-
-
-## v8.10 — Remove chapter label overlap
-- Hides the decorative per-chapter world labels (for example, “01 / THE ORIGIN”) that overlapped the fixed TOP and SKIP TO CONTACT buttons.
-- Keeps the current chapter name available through the existing scene caption / HUD and keeps section headings unchanged.
-- Applies across desktop, mobile, WebGL and lightweight mobile layouts.
-- Marks the decorative labels as hidden from assistive technology.
-
-
-## v8.11 — Career Orbit
-
-The Experience section now includes an interactive career timeline represented by three dwarf planets: Ceres (HighRadius Technologies), Haumea (Arrise Solutions, SDE I), and Pluto (Arrise Solutions / Pragmatic Play, Senior Software Engineer · SDE II). Selecting a planet updates the role, date range and short career summary. The timeline is built with lightweight CSS and native buttons; it adds no image, canvas, or 3D dependencies and remains available in mobile lightweight mode.

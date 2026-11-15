@@ -107,3 +107,133 @@ careerPlanets.forEach((planet) => {
     if (careerSummary) careerSummary.textContent = planet.dataset.summary || '';
   });
 });
+
+// v8.12 — shared Recruiter Mode and Technology Constellation dialogs.
+// These are DOM/CSS-only interactions and stay available in lightweight mobile mode.
+function bindFeatureDialog(dialogId, openerId) {
+  const dialog = document.getElementById(dialogId);
+  const opener = document.getElementById(openerId);
+  if (!dialog || !opener) return null;
+  const closeButtons = [...dialog.querySelectorAll('[data-feature-close="true"]')];
+  const panel = dialog.querySelector('.feature-dialog-panel');
+  let lastFocused = null;
+
+  const focusableSelector = 'a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])';
+  function focusableItems() {
+    return [...dialog.querySelectorAll(focusableSelector)].filter(item => !item.hidden && item.getAttribute('aria-hidden') !== 'true' && item.getClientRects().length > 0);
+  }
+  function close() {
+    if (dialog.hidden) return;
+    dialog.hidden = true;
+    document.body.classList.remove('feature-dialog-open');
+    opener.setAttribute('aria-expanded', 'false');
+    if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+    else opener.focus();
+  }
+  function open() {
+    // Only one feature overlay should be visible at a time.
+    document.querySelectorAll('.feature-dialog:not([hidden])').forEach(other => {
+      if (other !== dialog) {
+        other.hidden = true;
+        const otherOpener = document.querySelector(`[aria-controls="${other.id}"]`);
+        otherOpener?.setAttribute('aria-expanded', 'false');
+      }
+    });
+    lastFocused = document.activeElement;
+    dialog.hidden = false;
+    document.body.classList.add('feature-dialog-open');
+    opener.setAttribute('aria-expanded', 'true');
+    const initialFocus = dialog.querySelector('[data-dialog-autofocus]') || dialog.querySelector('.feature-close') || panel;
+    initialFocus?.focus();
+  }
+
+  opener.addEventListener('click', open);
+  closeButtons.forEach(button => button.addEventListener('click', close));
+  dialog.addEventListener('click', event => {
+    if (event.target === dialog || event.target.classList?.contains('feature-dialog-backdrop')) close();
+  });
+
+  document.addEventListener('keydown', event => {
+    if (dialog.hidden) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      close();
+      event.stopImmediatePropagation();
+      return;
+    }
+    if (event.key === 'Tab') {
+      const items = focusableItems();
+      if (!items.length) {
+        event.preventDefault();
+        panel?.focus();
+        return;
+      }
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+    event.stopImmediatePropagation();
+  }, true);
+
+  // Prevent dialog gestures from being interpreted as camera-flight input.
+  ['wheel', 'touchstart', 'touchmove', 'pointerdown', 'pointermove', 'pointerup'].forEach(type => {
+    window.addEventListener(type, event => {
+      if (!dialog.hidden && (dialog.contains(event.target) || type === 'wheel')) event.stopImmediatePropagation();
+    }, { capture: true, passive: type === 'wheel' || type === 'touchstart' || type === 'touchmove' });
+  });
+  return { open, close, dialog };
+}
+
+const recruiterDialog = bindFeatureDialog('recruiterMode', 'openRecruiterMode');
+const constellationDialog = bindFeatureDialog('technologyConstellation', 'openTechConstellation');
+
+const recruiterCaseStudyButton = document.getElementById('recruiterCaseStudyBtn');
+recruiterCaseStudyButton?.addEventListener('click', () => {
+  recruiterDialog?.close();
+  document.getElementById('openBonusCaseStudy')?.click();
+});
+
+const constellationNodes = [...document.querySelectorAll('.constellation-node')];
+const techDetailFields = {
+  category: document.getElementById('techDetailCategory'),
+  name: document.getElementById('techDetailName'),
+  summary: document.getElementById('techDetailSummary'),
+  context: document.getElementById('techDetailContext'),
+  connections: document.getElementById('techDetailConnections')
+};
+const constellationCaseStudyButton = document.getElementById('constellationCaseStudyBtn');
+const bonusCaseStudyOpener = document.getElementById('openBonusCaseStudy');
+const bonusCaseStudyDialog = document.getElementById('bonusCaseStudy');
+const bonusCaseStudyCloser = document.getElementById('closeBonusCaseStudy');
+
+function selectConstellationNode(node) {
+  if (!node) return;
+  constellationNodes.forEach(item => {
+    const selected = item === node;
+    item.classList.toggle('is-selected', selected);
+    item.setAttribute('aria-pressed', String(selected));
+  });
+  if (techDetailFields.category) techDetailFields.category.textContent = node.dataset.category || 'TECHNOLOGY';
+  if (techDetailFields.name) techDetailFields.name.textContent = node.dataset.name || node.textContent.trim();
+  if (techDetailFields.summary) techDetailFields.summary.textContent = node.dataset.summary || '';
+  if (techDetailFields.context) techDetailFields.context.textContent = node.dataset.context || 'Engineering toolkit';
+  if (techDetailFields.connections) techDetailFields.connections.textContent = node.dataset.connections || 'Related backend technologies';
+  if (constellationCaseStudyButton) {
+    const bonusRelated = /Bonus Promotions/i.test(node.dataset.context || '');
+    constellationCaseStudyButton.hidden = !bonusRelated;
+  }
+}
+
+constellationNodes.forEach(node => node.addEventListener('click', () => selectConstellationNode(node)));
+selectConstellationNode(constellationNodes.find(node => node.classList.contains('is-selected')) || constellationNodes[0]);
+
+constellationCaseStudyButton?.addEventListener('click', () => {
+  constellationDialog?.close();
+  bonusCaseStudyOpener?.click();
+});

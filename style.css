@@ -484,3 +484,109 @@ html.mobile-lite body.no-webgl .skip-contact-btn{display:flex!important}
 }
 @media(max-width:350px){.career-detail-heading{display:block}.career-detail-period{display:block;margin-top:3px}.career-planet-sphere{width:34px;height:34px}.planet-haumea{width:39px;height:28px}}
 @media(prefers-reduced-motion:reduce){.career-planet{transition:none}}
+
+/* v8.12 — professional Recruiter Mode entry in the persistent HUD. */
+.hud-feature-btn{appearance:none;border:1px solid #c6a77b66;border-radius:2px;background:#07102088;color:#d9c7a8;padding:8px 10px;font:700 7px var(--mono);letter-spacing:.1em;white-space:nowrap;cursor:pointer;transition:background .18s,border-color .18s,color .18s}
+.hud-feature-btn:hover{background:#c6a77b;color:#10131a;border-color:#c6a77b}
+.hud-feature-btn:focus-visible,.constellation-open-btn:focus-visible,.constellation-node:focus-visible,.constellation-case-link:focus-visible,.recruiter-actions a:focus-visible,.recruiter-actions button:focus-visible{outline:2px solid #f0d8b2;outline-offset:3px}
+.hud-feature-compact{display:none}
+@media(max-width:760px){.hud-feature-btn{padding:7px 8px;font-size:6px;letter-spacing:.06em}.hud-right{gap:6px}}
+@media(max-width:420px){.hud-feature-full{display:none}.hud-feature-compact{display:inline}.hud-feature-btn{padding:7px 7px}.hud-right{gap:5px}#soundBtn{font-size:6px!important;padding:7px 6px!important}}
+
+/* The constellation launcher stays in the Systems chapter; no extra 3D layer. */
+.constellation-open-btn{display:inline-flex;align-items:center;gap:10px;margin-top:13px;padding:10px 12px;border:1px solid #c6a77b77;background:linear-gradient(90deg,#c6a77b18,#0a1220a8);color:#e2c9a4;font:700 7px var(--mono);letter-spacing:.13em;cursor:pointer;transition:background .18s,border-color .18s,transform .18s}
+.constellation-open-btn:hover{background:#c6a77b;color:#10131a;border-color:#c6a77b;transform:translateY(-1px)}
+.constellation-open-btn>span:first-child{font-size:14px}
+
+/* Lightweight accessible overlays shared by desktop and mobile reading mode. */
+.feature-dialog[hidden]{display:none!important}
+.feature-dialog{position:fixed;inset:0;z-index:82;display:grid;place-items:center;padding:clamp(12px,2.5vw,32px);color:#edf3ff}
+.feature-dialog-backdrop{position:absolute;inset:0;background:rgba(2,5,13,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.feature-dialog-panel{position:relative;z-index:1;width:min(1060px,100%);max-height:min(92dvh,940px);overflow-y:auto;overscroll-behavior:contain;padding:clamp(18px,3vw,34px);border:1px solid #c6a77b55;background:linear-gradient(145deg,#0a1324f5,#070c18f8 58%,#0b1120f5);box-shadow:0 24px 90px #000b;scrollbar-width:thin;scrollbar-color:#7c6a51 #0a1120}
+.feature-dialog-header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding-bottom:16px;border-bottom:1px solid #c6a77b30}
+.feature-kicker{margin:0 0 9px;color:#c6a77b;font:7px/1.5 var(--mono);letter-spacing:.16em}
+.feature-dialog-header h2{margin:0;font:800 clamp(28px,4.4vw,48px)/1.02 var(--sans);letter-spacing:-.065em}
+.feature-dialog-header h2 em,.feature-dialog-header h2 span{font-style:normal;color:transparent;-webkit-text-stroke:1px #c6b79f}
+.feature-subtitle{max-width:680px;margin:10px 0 0;color:#9eacc7;font-size:11px;line-height:1.65}
+.feature-close{flex:0 0 auto;width:36px;height:36px;border:1px solid #c6a77b66;background:#071020;color:#dfc9a6;font:26px/1 var(--sans);cursor:pointer}
+.feature-close:hover{background:#c6a77b;color:#10131a}
+.feature-dialog-open{overflow:hidden!important}
+.recruiter-intro{max-width:800px;margin:18px 0;color:#c7d1e2;font-size:12px;line-height:1.75}
+.recruiter-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:18px 0 22px}
+.recruiter-metrics>div{display:flex;min-height:75px;flex-direction:column;justify-content:center;gap:5px;padding:12px;border:1px solid #c6a77b2b;background:#0a1322a8}
+.recruiter-metrics strong{color:#f0e2cb;font:700 clamp(20px,3vw,28px)/1 var(--sans);letter-spacing:-.05em}
+.recruiter-metrics span{color:#8798b7;font:6px/1.5 var(--mono);letter-spacing:.12em}
+.recruiter-content-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:24px}
+.recruiter-block{min-width:0}
+.recruiter-role{position:relative;margin:0 0 15px;padding:0 0 0 14px;border-left:1px solid #c6a77b77}
+.recruiter-role::before{content:"";position:absolute;left:-4px;top:4px;width:7px;height:7px;border-radius:50%;background:#c6a77b;box-shadow:0 0 10px #c6a77b44}
+.recruiter-role-date{display:block;margin-bottom:4px;color:#8798b7;font:6px var(--mono);letter-spacing:.12em}
+.recruiter-role strong{display:block;color:#edf3ff;font-size:12px;line-height:1.45}
+.recruiter-role>span:not(.recruiter-role-date){display:block;margin-top:2px;color:#d8c4a3;font:8px var(--mono)}
+.recruiter-role p{margin:6px 0 0;color:#9eacc7;font-size:9px;line-height:1.65}
+.recruiter-strengths>div{display:flex;flex-direction:column;gap:4px;margin:0 0 11px;padding:9px 11px;border:1px solid #c5b69a22;background:#091221aa}
+.recruiter-strengths strong{color:#e5d5bb;font-size:9px}
+.recruiter-strengths span{color:#9eacc7;font-size:8px;line-height:1.6}
+.recruiter-strengths .recruiter-education{margin-top:15px;border-color:#c6a77b44;background:#c6a77b0b}
+.recruiter-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px 18px;margin-top:18px;padding-top:16px;border-top:1px solid #c6a77b30}
+.recruiter-actions a,.recruiter-actions button{border:0;border-bottom:1px solid #c6a77b66;border-radius:0;background:none;padding:7px 0;color:#d9c7a8;text-decoration:none;font:700 7px var(--mono);letter-spacing:.1em;cursor:pointer}
+.recruiter-actions .recruiter-action-primary{padding:11px 13px;border:1px solid #c6a77b;background:#c6a77b;color:#10131a}
+.recruiter-actions a:hover,.recruiter-actions button:hover{color:#fff0d4}
+.recruiter-actions .recruiter-action-primary:hover{background:#e0c69f;color:#10131a}
+.feature-footnote{margin:14px 0 0;color:#71829f;font:6px/1.7 var(--mono);letter-spacing:.035em}
+
+/* Technology constellation is a selectable DOM map, not a canvas/WebGL scene. */
+.constellation-panel{width:min(1180px,100%)}
+.constellation-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(240px,.75fr);gap:22px;margin-top:20px;align-items:start}
+.constellation-clusters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.constellation-cluster{min-width:0;padding:13px;border:1px solid #c6a77b27;background:linear-gradient(145deg,#0b1728aa,#080f1caa)}
+.constellation-cluster-title{margin:0 0 11px;color:#bda986;font:6px/1.6 var(--mono);letter-spacing:.13em}
+.constellation-nodes{display:flex;flex-wrap:wrap;gap:7px}
+.constellation-node{position:relative;display:inline-flex;align-items:center;gap:7px;min-height:31px;padding:7px 9px;border:1px solid #91a4c12b;border-radius:20px;background:#0b1424;color:#b9c7dc;font:7px var(--mono);letter-spacing:.055em;cursor:pointer;transition:background .16s,border-color .16s,color .16s,transform .16s}
+.constellation-node::before{content:"";width:5px;height:5px;flex:0 0 5px;border-radius:50%;background:#8ca3c8;box-shadow:0 0 7px #8ca3c855}
+.constellation-node:hover{border-color:#c6a77b88;color:#f2e3ca;transform:translateY(-1px)}
+.constellation-node.is-selected{border-color:#c6a77b;background:#c6a77b18;color:#f0dfc2;box-shadow:0 0 16px #c6a77b14}
+.constellation-node.is-selected::before{background:#e7c997;box-shadow:0 0 10px #e7c99799}
+.constellation-detail{position:sticky;top:0;min-height:250px;padding:19px;border:1px solid #c6a77b66;background:radial-gradient(circle at 84% 12%,#c6a77b12,transparent 40%),#091322}
+.constellation-detail-orb{display:block;width:34px;height:34px;margin-bottom:13px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#f0dfc2 0 5%,#c6a77b 28%,#715d4e 68%,#161c2a 100%);box-shadow:inset -8px -5px 10px #02040baa,0 0 20px #c6a77b2e}
+.constellation-detail h3{margin:0;color:#f0e5d4;font:800 clamp(21px,2.5vw,29px)/1.1 var(--sans);letter-spacing:-.045em}
+#techDetailSummary{min-height:68px;margin:10px 0 18px;color:#aab8ce;font-size:10px;line-height:1.75}
+.constellation-detail-meta{display:grid;gap:4px;margin:11px 0;padding-top:10px;border-top:1px solid #c6a77b22}
+.constellation-detail-meta span{color:#8798b7;font:6px var(--mono);letter-spacing:.14em}
+.constellation-detail-meta strong{color:#dfd2bd;font-size:8px;line-height:1.6;font-weight:600}
+.constellation-case-link{margin-top:12px;padding:10px 11px;border:1px solid #c6a77b66;background:#c6a77b12;color:#e5d0ad;font:700 7px var(--mono);letter-spacing:.09em;cursor:pointer}
+.constellation-case-link:hover{background:#c6a77b;color:#10131a}
+.constellation-case-link[hidden]{display:none!important}
+
+@media(max-width:760px){
+  .feature-dialog{padding:0;align-items:stretch}
+  .feature-dialog-panel{width:100%;max-height:100dvh;height:100%;padding:calc(16px + env(safe-area-inset-top)) 15px calc(18px + env(safe-area-inset-bottom));border-left:0;border-right:0;border-top:0;border-bottom:0}
+  .feature-dialog-header{gap:12px}.feature-dialog-header h2{font-size:30px}.feature-subtitle{font-size:10px}
+  .feature-close{width:34px;height:34px}
+  .recruiter-intro{font-size:11px;line-height:1.65}
+  .recruiter-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:14px 0 18px}
+  .recruiter-metrics>div{min-height:64px;padding:10px}
+  .recruiter-metrics strong{font-size:22px}.recruiter-metrics span{font-size:6px}
+  .recruiter-content-grid{grid-template-columns:1fr;gap:14px}
+  .recruiter-role{margin-bottom:13px}.recruiter-role strong{font-size:12px}.recruiter-role p{font-size:10px}
+  .recruiter-strengths span{font-size:9px}
+  .recruiter-actions{gap:9px 15px}.recruiter-actions a,.recruiter-actions button{font-size:7px}
+  .constellation-layout{grid-template-columns:1fr;gap:13px;margin-top:14px}
+  .constellation-clusters{grid-template-columns:1fr;gap:9px}
+  .constellation-cluster{padding:11px}
+  .constellation-detail{position:relative;top:auto;min-height:0;padding:15px}
+  #techDetailSummary{min-height:0;margin-bottom:12px}
+}
+@media(max-width:360px){
+  .hud{padding-left:10px;padding-right:10px}
+  .brand{gap:6px;font-size:7px;letter-spacing:.08em}.brand-mark{width:25px;height:25px}
+  .hud-right{gap:4px}
+  .hud-feature-btn{font-size:5px;padding:6px 5px}
+  #soundBtn{font-size:5px!important;padding:6px 4px!important}
+  .feature-dialog-panel{padding-left:12px;padding-right:12px}
+  .constellation-node{font-size:6px;padding:7px 8px}
+}
+@media(prefers-reduced-motion:reduce){
+  .hud-feature-btn,.constellation-open-btn,.constellation-node{transition:none!important}
+  .feature-dialog-backdrop{backdrop-filter:none;-webkit-backdrop-filter:none}
+}

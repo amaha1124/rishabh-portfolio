@@ -19,7 +19,7 @@
 <div class="vignette"></div><div class="grain"></div>
 <header class="hud">
   <a class="brand" href="#home" aria-label="Rishabh Arora — return to the beginning"><span class="brand-mark">RA</span><span>RISHABH <i>ARORA</i></span></a>
-  <div class="hud-right"><span id="sectorLabel">SECTOR 00 · DEEP SPACE</span><span class="hud-sep"></span><button id="soundBtn" type="button" aria-pressed="false" aria-label="Play ambient soundtrack" title="Play or pause the ambient soundtrack">PLAY SOUND</button></div>
+  <div class="hud-right"><span id="sectorLabel">SECTOR 00 · DEEP SPACE</span><span class="hud-sep"></span><button id="openRecruiterMode" class="hud-feature-btn" type="button" aria-haspopup="dialog" aria-controls="recruiterMode" aria-expanded="false"><span class="hud-feature-full">RECRUITER MODE</span><span class="hud-feature-compact">PROFILE</span></button><button id="soundBtn" type="button" aria-pressed="false" aria-label="Play ambient soundtrack" title="Play or pause the ambient soundtrack">PLAY SOUND</button></div>
 </header>
 <div id="bootNotice" class="boot-notice" role="status" aria-live="polite" hidden></div>
 <div class="progress" id="portfolioProgress" role="progressbar" aria-label="Portfolio journey progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0 percent complete"><span id="progress"></span></div>
@@ -71,6 +71,7 @@
       <h2>Make it work.<br><em>Make it last.</em></h2>
       <p class="body">I build backend systems with an eye for resilience, clear boundaries and operational reality.</p>
       <div class="tech-grid"><span>JAVA</span><span>GOLANG</span><span>SQL / C++</span><span>SPRING BOOT</span><span>SPRING MVC</span><span>HIBERNATE</span><span>KAFKA</span><span>REDIS / REDISSON</span><span>POSTGRESQL</span><span>SQL SERVER</span><span>DOCKER</span><span>KUBERNETES</span><span>AWS EC2 / S3 / SQS</span><span>BEDROCK</span><span>JENKINS</span><span>PROMETHEUS</span><span>MICROMETER</span><span>JUNIT / MOCKITO</span><span>WEBSOCKETS</span><span>JWT / OAUTH2</span></div>
+      <button id="openTechConstellation" class="constellation-open-btn" type="button" aria-haspopup="dialog" aria-controls="technologyConstellation" aria-expanded="false"><span aria-hidden="true">✧</span> OPEN TECHNOLOGY CONSTELLATION <span aria-hidden="true">↗</span></button>
       <p class="micro">THE STACK IS A TOOL. THE SYSTEM IS THE CRAFT.</p>
     </div><div class="world-tag tag-systems" aria-hidden="true">02 / SYSTEMS PLANET</div>
   </section>
@@ -170,6 +171,101 @@
     <p class="case-footnote">*10M+ RPM transaction metric is the scale figure already stated in this portfolio. The user selector is an architecture walkthrough—not a live benchmark or a claim that these exact node counts were deployed. Redis accelerates the hot path; it is not presented as the durable transaction ledger. Actual capacity depends on workload mix, data model, cache hit rate and load testing.</p>
   </div>
 </section>
+<!-- Recruiter Mode: a fast, accessible summary of the professional profile. -->
+<section class="feature-dialog recruiter-dialog" id="recruiterMode" role="dialog" aria-modal="true" aria-labelledby="recruiterTitle" aria-describedby="recruiterIntro" hidden>
+  <div class="feature-dialog-backdrop" data-feature-close="true"></div>
+  <div class="feature-dialog-panel recruiter-panel" role="document" tabindex="-1">
+    <header class="feature-dialog-header">
+      <div><p class="feature-kicker">RECRUITER ACCESS / PROFESSIONAL PROFILE</p><h2 id="recruiterTitle">Rishabh Arora<span>.</span></h2><p class="feature-subtitle">Senior Software Engineer · Backend Engineering · Distributed Systems · AI</p></div>
+      <button class="feature-close" type="button" data-feature-close="true" aria-label="Close Recruiter Mode">×</button>
+    </header>
+    <p id="recruiterIntro" class="recruiter-intro">Backend engineer with 5+ years of experience building high-throughput services and transactional workflows. Focused on performance, reliability, data consistency and practical AI-powered applications.</p>
+    <div class="recruiter-metrics" aria-label="Selected career highlights">
+      <div><strong>5+</strong><span>YEARS EXPERIENCE</span></div>
+      <div><strong>50K+</strong><span>CASINOS SERVED</span></div>
+      <div><strong>10M+</strong><span>RPM TRANSACTIONS*</span></div>
+      <div><strong>&lt;50ms</strong><span>ELIGIBILITY API P99</span></div>
+    </div>
+    <div class="recruiter-content-grid">
+      <section class="recruiter-block">
+        <p class="feature-kicker">PROFESSIONAL EXPERIENCE</p>
+        <div class="recruiter-role"><span class="recruiter-role-date">JUL 2024 — PRESENT</span><strong>Senior Software Engineer · SDE II</strong><span>Arrise Solutions (Pragmatic Play)</span><p>Own backend features from design through implementation, QA support, release and hypercare, with a focus on scale, reliability and performance.</p></div>
+        <div class="recruiter-role"><span class="recruiter-role-date">JAN 2023 — JUN 2024</span><strong>Software Development Engineer I</strong><span>Arrise Solutions</span><p>Worked on backend development for the Bonus Promotions platform, including campaign and player workflows.</p></div>
+        <div class="recruiter-role"><span class="recruiter-role-date">JUN 2021 — JAN 2023</span><strong>Associate Software Engineer</strong><span>HighRadius Technologies</span><p>Built experience in enterprise software development and backend engineering.</p></div>
+      </section>
+      <section class="recruiter-block recruiter-strengths">
+        <p class="feature-kicker">ENGINEERING FOCUS</p>
+        <div><strong>Backend systems</strong><span>Java · Go · Spring Boot · REST APIs</span></div>
+        <div><strong>Distributed systems</strong><span>Kafka · Redis · Redisson · Microservices</span></div>
+        <div><strong>Data & infrastructure</strong><span>PostgreSQL · SQL Server · AWS · Docker · Kubernetes</span></div>
+        <div><strong>AI & engineering practices</strong><span>AWS Bedrock · RAG exploration · JUnit · Mockito · Observability</span></div>
+        <div class="recruiter-education"><strong>Education</strong><span>KIIT, Bhubaneswar · B.Tech Computer Science · 2017–2021 · CGPA 8.93</span></div>
+      </section>
+    </div>
+    <div class="recruiter-actions">
+      <a class="recruiter-action-primary" href="/resume.pdf" download="Rishabh-Arora-Resume.pdf">DOWNLOAD RESUME ↓</a>
+      <a href="mailto:arorarishabh607@gmail.com">EMAIL ↗</a>
+      <a href="https://www.linkedin.com/in/rishabh-arora1512" target="_blank" rel="noopener noreferrer">LINKEDIN ↗</a>
+      <a href="https://github.com/RishabhArora1512" target="_blank" rel="noopener noreferrer">GITHUB ↗</a>
+      <button type="button" id="recruiterCaseStudyBtn">VIEW BONUS PROMOTIONS CASE STUDY ↗</button>
+    </div>
+    <p class="feature-footnote">*Career and scale figures are the figures already presented in this portfolio. The RPM figure is a stated platform metric, not a measurement generated by this website.</p>
+  </div>
+</section>
+
+<!-- Technology Constellation: lightweight DOM-based interactive skills map. -->
+<section class="feature-dialog constellation-dialog" id="technologyConstellation" role="dialog" aria-modal="true" aria-labelledby="constellationTitle" aria-describedby="constellationIntro" hidden>
+  <div class="feature-dialog-backdrop" data-feature-close="true"></div>
+  <div class="feature-dialog-panel constellation-panel" role="document" tabindex="-1">
+    <header class="feature-dialog-header">
+      <div><p class="feature-kicker">SYSTEMS PLANET / INTERACTIVE SKILLS MAP</p><h2 id="constellationTitle">Technology <em>constellation.</em></h2><p id="constellationIntro" class="feature-subtitle">Select a node to see where the technology fits in my engineering work and which systems it connects to.</p></div>
+      <button class="feature-close" type="button" data-feature-close="true" aria-label="Close Technology Constellation">×</button>
+    </header>
+    <div class="constellation-layout">
+      <div class="constellation-clusters" aria-label="Technology groups">
+        <section class="constellation-cluster"><p class="constellation-cluster-title">01 / LANGUAGES & FRAMEWORKS</p><div class="constellation-nodes">
+          <button class="constellation-node is-selected" type="button" data-tech="java" data-name="Java" data-category="LANGUAGE" data-summary="A core backend language used to build and evolve the Bonus Promotions services." data-context="Bonus Promotions Platform" data-connections="Spring Boot · Kafka · Redis · PostgreSQL" aria-pressed="true">JAVA</button>
+          <button class="constellation-node" type="button" data-tech="cpp" data-name="C++" data-category="LANGUAGE" data-summary="A systems programming language included in the broader programming toolkit." data-context="Programming language toolkit" data-connections="Algorithms · Systems fundamentals" aria-pressed="false">C++</button>
+          <button class="constellation-node" type="button" data-tech="go" data-name="Go" data-category="LANGUAGE" data-summary="Used for backend service development and the Career Autopilot project." data-context="Career Autopilot (in progress)" data-connections="AWS Bedrock · Redis" aria-pressed="false">GO</button>
+          <button class="constellation-node" type="button" data-tech="spring-boot" data-name="Spring Boot" data-category="FRAMEWORK" data-summary="The service framework behind Java APIs and backend workflows." data-context="Bonus Promotions Platform · AI Production Log Analyzer" data-connections="Java · Spring MVC · PostgreSQL" aria-pressed="false">SPRING BOOT</button>
+          <button class="constellation-node" type="button" data-tech="spring-mvc" data-name="Spring MVC" data-category="FRAMEWORK" data-summary="Request routing and web-layer technology in the Spring ecosystem." data-context="Java backend stack" data-connections="Java · Spring Boot" aria-pressed="false">SPRING MVC</button>
+          <button class="constellation-node" type="button" data-tech="hibernate" data-name="Hibernate" data-category="PERSISTENCE" data-summary="ORM technology used to map application models to relational data." data-context="Java backend stack" data-connections="Java · PostgreSQL · SQL Server" aria-pressed="false">HIBERNATE</button>
+        </div></section>
+        <section class="constellation-cluster"><p class="constellation-cluster-title">02 / DISTRIBUTED SYSTEMS</p><div class="constellation-nodes">
+          <button class="constellation-node" type="button" data-tech="kafka" data-name="Apache Kafka" data-category="EVENT STREAMING" data-summary="Provides asynchronous event flows and decoupled downstream processing around bonus workflows." data-context="Bonus Promotions Platform" data-connections="Spring Boot · Consumers · PostgreSQL" aria-pressed="false">KAFKA</button>
+          <button class="constellation-node" type="button" data-tech="redis" data-name="Redis" data-category="IN-MEMORY DATA" data-summary="Accelerates hot eligibility and upcoming-bonus reads, reducing repeated database access. PostgreSQL remains the durable source of truth." data-context="Bonus Promotions Platform" data-connections="Spring Boot · Redisson · PostgreSQL" aria-pressed="false">REDIS</button>
+          <button class="constellation-node" type="button" data-tech="redisson" data-name="Redisson" data-category="REDIS CLIENT" data-summary="Java client tooling for Redis-backed coordination patterns, including distributed locking." data-context="Java backend services" data-connections="Java · Redis · Spring Boot" aria-pressed="false">REDISSON</button>
+          <button class="constellation-node" type="button" data-tech="websockets" data-name="WebSockets" data-category="REAL-TIME COMMUNICATION" data-summary="A full-duplex communication protocol for persistent client and server connections." data-context="Backend engineering toolkit" data-connections="Java · Backend services" aria-pressed="false">WEBSOCKETS</button>
+        </div></section>
+        <section class="constellation-cluster"><p class="constellation-cluster-title">03 / DATA & INFRASTRUCTURE</p><div class="constellation-nodes">
+          <button class="constellation-node" type="button" data-tech="postgresql" data-name="PostgreSQL" data-category="RELATIONAL DATABASE" data-summary="The durable store for campaign and transaction state in the Bonus Promotions architecture." data-context="Bonus Promotions Platform" data-connections="Spring Boot · Redis · Kafka" aria-pressed="false">POSTGRESQL</button>
+          <button class="constellation-node" type="button" data-tech="sql-server" data-name="SQL Server" data-category="RELATIONAL DATABASE" data-summary="Relational database technology in the broader backend engineering stack." data-context="Data layer toolkit" data-connections="SQL · Java persistence" aria-pressed="false">SQL SERVER</button>
+          <button class="constellation-node" type="button" data-tech="aws" data-name="AWS EC2 / S3 / SQS" data-category="CLOUD" data-summary="Cloud compute, object storage and queueing services in the infrastructure toolkit." data-context="Backend services and report workflows" data-connections="Spring Boot · Storage · Messaging" aria-pressed="false">AWS</button>
+          <button class="constellation-node" type="button" data-tech="docker" data-name="Docker" data-category="CONTAINERS" data-summary="Container packaging for consistent development and service runtime environments." data-context="Development and deployment toolkit" data-connections="Java · Go · Service environments" aria-pressed="false">DOCKER</button>
+          <button class="constellation-node" type="button" data-tech="kubernetes" data-name="Kubernetes" data-category="ORCHESTRATION" data-summary="Container orchestration technology for deploying and managing service workloads." data-context="Infrastructure toolkit" data-connections="Docker · Microservices" aria-pressed="false">KUBERNETES</button>
+        </div></section>
+        <section class="constellation-cluster"><p class="constellation-cluster-title">04 / AI, QUALITY & OBSERVABILITY</p><div class="constellation-nodes">
+          <button class="constellation-node" type="button" data-tech="bedrock" data-name="AWS Bedrock" data-category="GENERATIVE AI" data-summary="LLM platform used in the Career Autopilot project exploration." data-context="Career Autopilot (in progress)" data-connections="Go · Redis · LLM workflows" aria-pressed="false">AWS BEDROCK</button>
+          <button class="constellation-node" type="button" data-tech="prometheus" data-name="Prometheus & Micrometer" data-category="OBSERVABILITY" data-summary="Application instrumentation and metric collection for understanding service and cache behaviour." data-context="Backend service operations" data-connections="Spring Boot · Cache · Metrics" aria-pressed="false">PROMETHEUS / MICROMETER</button>
+          <button class="constellation-node" type="button" data-tech="jenkins" data-name="Jenkins" data-category="CI / CD" data-summary="Build and delivery automation tooling in the engineering toolkit." data-context="Development workflow" data-connections="Builds · Tests · Deployments" aria-pressed="false">JENKINS</button>
+          <button class="constellation-node" type="button" data-tech="testing" data-name="JUnit & Mockito" data-category="TESTING" data-summary="Java testing tools used to write automated unit and component tests." data-context="Backend service testing" data-connections="Java · Spring Boot" aria-pressed="false">JUNIT / MOCKITO</button>
+          <button class="constellation-node" type="button" data-tech="security" data-name="JWT & OAuth2" data-category="APPLICATION SECURITY" data-summary="Token-based authentication and delegated authorization technologies in the toolkit." data-context="API security patterns" data-connections="REST APIs · Spring Security" aria-pressed="false">JWT / OAUTH2</button>
+        </div></section>
+      </div>
+      <aside class="constellation-detail" aria-live="polite" aria-atomic="true">
+        <span class="constellation-detail-orb" aria-hidden="true"></span>
+        <p class="feature-kicker" id="techDetailCategory">LANGUAGE</p>
+        <h3 id="techDetailName">Java</h3>
+        <p id="techDetailSummary">A core backend language used to build and evolve the Bonus Promotions services.</p>
+        <div class="constellation-detail-meta"><span>RELATED WORK</span><strong id="techDetailContext">Bonus Promotions Platform</strong></div>
+        <div class="constellation-detail-meta"><span>CONNECTED NODES</span><strong id="techDetailConnections">Spring Boot · Kafka · Redis · PostgreSQL</strong></div>
+        <button id="constellationCaseStudyBtn" type="button" class="constellation-case-link">EXPLORE BONUS PROMOTIONS ↗</button>
+      </aside>
+    </div>
+    <p class="feature-footnote">Technology nodes describe tools in the engineering stack. Project associations are shown only where directly relevant; no public employer source code is linked.</p>
+  </div>
+</section>
+
 <div class="bottom-hint"><span class="desktop-hint">WASD: FLY · SCROLL: CRUISE · DRAG: LOOK · Q/E: UP/DOWN</span><span class="mobile-hint">SWIPE TO EXPLORE</span></div>
 <a id="skipContactBtn" class="skip-contact-btn" href="#contact" aria-label="Skip directly to contact" title="Skip to contact"><span class="return-top-arrow">↓</span><span class="return-top-label">SKIP TO CONTACT</span></a>
 <button id="returnTopBtn" class="return-top-btn" type="button" aria-label="Return to top" title="Return to top"><span class="return-top-arrow">↑</span><span class="return-top-label">TOP</span></button>
