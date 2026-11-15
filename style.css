@@ -288,3 +288,15 @@ body.no-webgl .world-tag,body.no-webgl .hero-actions,body.no-webgl .hero-foot{di
 @media(prefers-reduced-motion:reduce){.case-study-open,.case-scale-btn,.case-close{transition:none!important}}
 
 body.no-webgl .boot-notice{position:relative;top:auto;left:auto;max-width:760px;margin:16px auto;padding:9px 12px}
+
+
+/* v8.5: lighter mobile GPU/compositor profile. */
+@media (max-width: 760px), (pointer: coarse) {
+  .grain { display: none !important; }
+  .vignette { background: radial-gradient(ellipse at center, transparent 48%, #02040b88 100%); }
+  .scene-controls button, .return-top-btn { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+  .progress span { transition: none; }
+}
+@media (max-width: 420px) {
+  .vignette { background: linear-gradient(180deg, #02040b22, transparent 38%, #02040b44); }
+}
