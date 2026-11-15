@@ -129,3 +129,25 @@
   .mission-copy { top:calc(58px + env(safe-area-inset-top) + 10px)!important; width:89%!important; left:5.5%!important; max-height:calc(100dvh - 58px - env(safe-area-inset-top) - 82px)!important; }
   .mission-copy h2 { font-size:clamp(34px,8.8vw,44px); }
 }
+
+
+/* v6.6: no nested content scrollbars on touch devices; keep the scene swipeable. */
+@media (max-width:760px), (pointer:coarse){
+  .copy{max-height:none!important; overflow:visible!important; scrollbar-width:none!important; -ms-overflow-style:none; overscroll-behavior:auto!important; -webkit-overflow-scrolling:auto!important;}
+  .copy::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
+  .copy.left,.copy.right,.contact-copy{padding:6px 4px 10px 0!important}
+  .copy h2{margin-bottom:9px!important;line-height:1.04}
+  .body{font-size:clamp(11px,3.1vw,13px)!important;line-height:1.52!important;margin:7px 0 9px!important}
+  .stats{margin-top:10px!important;gap:10px!important}
+  .tech-grid{margin-top:9px!important;gap:5px!important}
+  .tech-grid span,.future-list span{padding:5px 7px!important}
+  .experience-mini{margin-top:8px!important;padding-top:6px!important}
+  .experience-mini p{line-height:1.45!important}
+  .mission{margin:8px 0!important;padding-left:9px!important}
+  .mission h3{font-size:clamp(12px,3.3vw,14px)!important;margin:3px 0!important}
+  .mission p{font-size:clamp(10px,2.8vw,12px)!important;line-height:1.45!important;margin:3px 0!important}
+  .stack,.fineprint,.micro{font-size:clamp(7px,2vw,9px)!important;line-height:1.45!important}
+  .future-list{gap:5px!important;margin-top:9px!important}
+  .links{margin-top:12px!important}
+  .copyright{margin-top:16px!important}
+}

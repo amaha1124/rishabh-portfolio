@@ -234,7 +234,13 @@ function animate() {
   camera.position.z = THREE.MathUtils.clamp(camera.position.z, -290, 35);
   camera.lookAt(camera.position.clone().add(forward));
   stars.rotation.y = elapsed * 0.00012;
-  planets.forEach((planet, index) => { planet.mesh.rotation.y += delta * (index % 2 ? 0.00055 : 0.00038); });
+  planets.forEach((planet, index) => {
+    // Give the planets a visible, slow axial spin; rotate the whole group gently
+    // so rings and atmospheric layers move with the planet instead of staying static.
+    const spin = index % 2 ? 0.018 : 0.013;
+    planet.mesh.rotation.y += delta * spin;
+    planet.group.rotation.y += delta * 0.0035;
+  });
   updateChapter();
   renderer.render(scene, camera);
 }
