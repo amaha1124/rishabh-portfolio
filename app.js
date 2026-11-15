@@ -97,12 +97,12 @@ function canvasTexture(base, accent, mode = 'bands') {
 const textureLoader = new THREE.TextureLoader();
 textureLoader.setCrossOrigin('anonymous');
 const planetTextureUrls = {
-  Earth: 'https://play.solarsystemscope.com/textures/download/2k_earth_daymap.jpg',
-  Moon: 'https://play.solarsystemscope.com/textures/download/2k_moon.jpg',
-  Saturn: 'https://play.solarsystemscope.com/textures/download/2k_saturn.jpg',
-  Mars: 'https://play.solarsystemscope.com/textures/download/2k_mars.jpg',
-  Ice: 'https://play.solarsystemscope.com/textures/download/2k_neptune.jpg',
-  Portal: 'https://play.solarsystemscope.com/textures/download/2k_jupiter.jpg'
+  Earth: '/planet-textures/2k_earth_daymap.jpg',
+  Moon: '/planet-textures/2k_moon.jpg',
+  Saturn: '/planet-textures/2k_saturn.jpg',
+  Mars: '/planet-textures/2k_mars.jpg',
+  Ice: '/planet-textures/2k_neptune.jpg',
+  Portal: '/planet-textures/2k_jupiter.jpg'
 };
 function loadPlanetTexture(name, fallback, material) {
   const url = planetTextureUrls[name];
@@ -166,6 +166,23 @@ const dots = [...document.querySelectorAll('.dots button')];
 const names = ['DEEP SPACE', 'THE ORIGIN', 'SYSTEMS PLANET', 'FIELD MISSIONS', 'THE NEXT FRONTIER', 'OPEN CHANNEL'];
 const anchors = [23, -35, -78, -121, -164, -210];
 let currentChapter = 0;
+let journeyRunning = false;
+let journeyStopIndex = 0;
+let journeyDwellUntil = 0;
+let journeyLastFrame = 0;
+const journeyButton = document.querySelector('#journeyTourBtn');
+const journeyStopDuration = 2600;
+function stopJourney() {
+  if (!journeyRunning) return;
+  journeyRunning = false;
+  if (journeyButton) { journeyButton.textContent = 'SEE MY JOURNEY'; journeyButton.setAttribute('aria-pressed', 'false'); }
+}
+function startJourney() {
+  journeyRunning = true; journeyStopIndex = 0; journeyDwellUntil = 0; journeyLastFrame = performance.now();
+  velocity.set(0, 0, 0);
+  if (journeyButton) { journeyButton.textContent = 'PAUSE JOURNEY'; journeyButton.setAttribute('aria-pressed', 'true'); }
+}
+journeyButton?.addEventListener('click', () => { if (journeyRunning) stopJourney(); else startJourney(); });
 function updateChapter() {
   let nearest = 0, best = Infinity;
   anchors.forEach((z, i) => { const distance = Math.abs(camera.position.z - z); if (distance < best) { best = distance; nearest = i; } });
@@ -192,6 +209,7 @@ let dragging = false, lastPointerX = 0, lastPointerY = 0;
 const clock = new THREE.Clock();
 let lastScrollAt = 0;
 window.addEventListener('keydown', event => {
+  if (journeyRunning && (keyBindings[event.code] || event.code === 'Space' || event.key.startsWith('Arrow'))) stopJourney();
   if (desktopTopView && event.code === 'KeyT') {
     topViewEnabled = !topViewEnabled;
     if (topViewEnabled) { pitchBeforeTopView = pitch; topViewTargetPitch = 1.48; }
@@ -208,6 +226,7 @@ window.addEventListener('blur', () => { pressed.clear(); dragging = false; });
 
 // Wheel/trackpad input changes ship velocity proportionally, so the visitor chooses the pace.
 window.addEventListener('wheel', event => {
+  if (journeyRunning) stopJourney();
   event.preventDefault();
   // On desktop, Shift + trackpad/mouse-wheel tilts the camera toward a top-down view.
   // Ordinary scrolling continues to control forward flight. Mobile behaviour is untouched.
@@ -226,7 +245,7 @@ window.addEventListener('wheel', event => {
 }, { passive: false });
 
 // Click-drag to steer the view. Mouse movement is not tied to the active content card.
-window.addEventListener('pointerdown', event => { if (event.pointerType === 'touch' || event.target.closest('a, button')) return; dragging = true; lastPointerX = event.clientX; lastPointerY = event.clientY; });
+window.addEventListener('pointerdown', event => { if (journeyRunning) stopJourney(); if (event.pointerType === 'touch' || event.target.closest('a, button')) return; dragging = true; lastPointerX = event.clientX; lastPointerY = event.clientY; });
 window.addEventListener('pointermove', event => {
   if (!dragging || event.pointerType === 'touch') return;
   const dx = event.clientX - lastPointerX, dy = event.clientY - lastPointerY;
@@ -242,6 +261,7 @@ window.addEventListener('pointercancel', () => { dragging = false; });
 let touchX = 0, touchY = 0, touchActive = false;
 let touchTargetIsCopy = false;
 window.addEventListener('touchstart', event => {
+  if (journeyRunning) stopJourney();
   if (event.touches.length !== 1) { touchActive = false; return; }
   const t = event.touches[0];
   touchX = t.clientX; touchY = t.clientY; touchActive = true;
@@ -297,6 +317,28 @@ function animate() {
   requestAnimationFrame(animate);
   const delta = Math.min(clock.getDelta(), 0.04), elapsed = clock.elapsedTime;
   if (desktopTopView) pitch = THREE.MathUtils.damp(pitch, topViewTargetPitch, 3.2, delta);
+  if (journeyRunning) {
+    const now = performance.now();
+    const targetZ = anchors[journeyStopIndex];
+    const targetX = journeyStopIndex === 2 || journeyStopIndex === 4 ? 8 : journeyStopIndex === 3 ? -7 : 0;
+    const targetY = 0;
+    const dz = targetZ - camera.position.z;
+    const dx = targetX - camera.position.x;
+    const dy = targetY - camera.position.y;
+    const distance = Math.hypot(dx, dy, dz);
+    if (distance > 1.15) {
+      const step = Math.min(distance, Math.max(7, distance * 0.72) * delta);
+      camera.position.x += dx / distance * step;
+      camera.position.y += dy / distance * step;
+      camera.position.z += dz / distance * step;
+      velocity.set(0, 0, 0);
+    } else if (journeyDwellUntil === 0) {
+      journeyDwellUntil = now + journeyStopDuration;
+    } else if (now >= journeyDwellUntil) {
+      if (journeyStopIndex < anchors.length - 1) { journeyStopIndex++; journeyDwellUntil = 0; }
+      else { journeyRunning = false; if (journeyButton) { journeyButton.textContent = 'REPLAY JOURNEY'; journeyButton.setAttribute('aria-pressed', 'false'); } }
+    }
+  }
   const forward = new THREE.Vector3(Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), -Math.cos(yaw) * Math.cos(pitch));
   const right = new THREE.Vector3(Math.cos(yaw), 0, Math.sin(yaw));
   const desired = new THREE.Vector3();
@@ -329,7 +371,9 @@ function animate() {
   // Speeds are intentionally visible in a portfolio scene while remaining restrained.
   const axialSpinRates = [0.075, 0.035, 0.055, 0.065, 0.045, 0.085];
   planets.forEach((planet, index) => {
-    planet.group.rotation.y += delta * axialSpinRates[index];
+    // Rotate each sphere mesh directly; this guarantees every body's visible surface spins
+    // even if its parent assembly is later reoriented for rings or orbital presentation.
+    planet.mesh.rotation.y += delta * axialSpinRates[index];
   });
   updateChapter();
   renderer.render(scene, camera);

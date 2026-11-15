@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/planet-textures/:file*",
+      "destination": "https://play.solarsystemscope.com/textures/download/:file*"
+    }
+  ]
+}

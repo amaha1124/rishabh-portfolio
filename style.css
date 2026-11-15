@@ -151,3 +151,6 @@
   .links{margin-top:12px!important}
   .copyright{margin-top:16px!important}
 }
+
+/* Guided, hands-free portfolio tour */
+.hero-actions{margin-top:28px}.journey-tour-btn{appearance:none;border:1px solid #c6a77b88;background:#c6a77b;color:#10131a;padding:13px 18px;font:700 9px var(--mono);letter-spacing:.14em;cursor:pointer;transition:background .2s,transform .2s}.journey-tour-btn span{margin-left:18px;font-size:13px}.journey-tour-btn:hover{background:#e0c69f;transform:translateY(-2px)}.journey-tour-btn:focus-visible{outline:2px solid #fff;outline-offset:4px}@media(max-width:760px){.hero-actions{margin-top:22px}.journey-tour-btn{padding:12px 15px;font-size:8px}}
