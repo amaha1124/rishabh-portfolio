@@ -11,10 +11,11 @@
 </head>
 <body>
 <div id="scene" aria-hidden="true"></div>
+<audio id="ambientTrack" src="assets/ambient.mp3" preload="none" loop></audio>
 <div class="vignette"></div><div class="grain"></div>
 <header class="hud">
   <a class="brand" href="#home"><span class="brand-mark">RA</span><span>RISHABH <i>ARORA</i></span></a>
-  <div class="hud-right"><span id="sectorLabel">SECTOR 00 · DEEP SPACE</span><span class="hud-sep"></span><button id="soundBtn" aria-label="Play ambient music" title="Play or mute the ambient soundtrack">MUSIC OFF</button></div>
+  <div class="hud-right"><span id="sectorLabel">SECTOR 00 · DEEP SPACE</span><span class="hud-sep"></span><button id="soundBtn" aria-label="Play ambient soundtrack" title="Play or pause the ambient soundtrack">PLAY SOUND</button></div>
 </header>
 <div class="progress"><span id="progress"></span></div>
 <div class="scene-caption"><span id="captionNumber">00</span><span id="captionName">DEEP SPACE</span></div>
@@ -24,8 +25,8 @@
       <div class="eyebrow"><b></b> TRANSMISSION RECEIVED · EARTH, INDIA</div>
       <p class="kicker">A HUMAN, BUILDING SYSTEMS.</p>
       <h1>Rishabh<br><em>Arora.</em></h1>
-      <p class="lead">Backend engineer. Systems thinker.<br>Curious about what comes next.</p>
-      <div class="hero-foot"><span class="scroll-prompt"><i></i> SCROLL / TRACKPAD TO FLY</span><span>WASD TO STEER · DRAG TO LOOK</span></div>
+      <p class="lead">Software Development Engineer II.<br>Distributed systems, backend engineering & AI.</p>
+      <div class="hero-foot"><span class="scroll-prompt"><i></i> SCROLL / TRACKPAD TO FLY</span><span>WASD TO FLY · DRAG TO LOOK</span></div>
     </div>
     <div class="world-tag tag-home">01 / THE ORIGIN</div>
   </section>
@@ -33,9 +34,11 @@
     <div class="copy left">
       <div class="eyebrow">SECTOR 01 <b>·</b> THE ORIGIN</div><p class="kicker">01 — WHO'S ON BOARD?</p>
       <h2>Curiosity<br>is my <em>engine.</em></h2>
-      <p class="body">I'm Rishabh, a backend Java engineer with 5 years of experience building and operating services where correctness, reliability and performance matter.</p>
-      <p class="body">I enjoy understanding what happens beneath the interface: how services communicate, how data moves, and how systems behave when things go wrong.</p>
-      <div class="stats"><div><strong>05<span>+</span></strong><small>YEARS BUILDING</small></div><div><strong>01</strong><small>CORE CRAFT</small></div><div><strong>∞</strong><small>QUESTIONS</small></div></div>
+      <p class="body">I'm Rishabh Arora, a Software Development Engineer II at Arrise Solutions (Pragmatic Play), with 5+ years of experience building high-throughput backend systems. Previously, I worked at HighRadius Technologies.</p>
+      <p class="body">My work spans Java, Go, Spring Boot, Kafka, Redis, PostgreSQL and AWS. I care about performance, fault tolerance, financial correctness and the operational details behind reliable services.</p>
+      <div class="stats"><div><strong>50K<span>+</span></strong><small>CASINOS SERVED</small></div><div><strong>10M<span>+</span></strong><small>RPM TRANSACTIONS</small></div><div><strong>&lt;50ms</strong><small>ELIGIBILITY P99</small></div></div>
+      <div class="experience-mini"><p><b>ARRISE SOLUTIONS (PRAGMATIC PLAY)</b> · SDE II · JUL 2024—PRESENT</p><p><b>ARRISE SOLUTIONS</b> · SDE I · JAN 2023—JUN 2024</p><p><b>HIGH RADIUS TECHNOLOGIES</b> · ASSOCIATE SOFTWARE ENGINEER · JUN 2021—JAN 2023</p></div>
+      <p class="education-line">KIIT, BHUBANESWAR · B.TECH COMPUTER SCIENCE · 2017—2021 · CGPA 8.93</p>
     </div><div class="world-tag tag-origin">HUMAN / ENGINEER</div>
   </section>
   <section class="chapter" id="systems" data-name="SYSTEMS PLANET">
@@ -43,7 +46,7 @@
       <div class="eyebrow">SECTOR 02 <b>·</b> THE TOOLKIT</div><p class="kicker">02 — THE ENGINE ROOM</p>
       <h2>Make it work.<br><em>Make it last.</em></h2>
       <p class="body">I build backend systems with an eye for resilience, clear boundaries and operational reality.</p>
-      <div class="tech-grid"><span>JAVA</span><span>SPRING BOOT</span><span>KAFKA</span><span>REDIS</span><span>POSTGRESQL</span><span>DOCKER</span><span>AWS S3</span><span>MICROMETER</span><span>K6</span></div>
+      <div class="tech-grid"><span>JAVA</span><span>GOLANG</span><span>SQL / C++</span><span>SPRING BOOT</span><span>SPRING MVC</span><span>HIBERNATE</span><span>KAFKA</span><span>REDIS / REDISSON</span><span>POSTGRESQL</span><span>SQL SERVER</span><span>DOCKER</span><span>KUBERNETES</span><span>AWS EC2 / S3 / SQS</span><span>BEDROCK</span><span>JENKINS</span><span>PROMETHEUS</span><span>MICROMETER</span><span>JUNIT / MOCKITO</span><span>WEBSOCKETS</span><span>JWT / OAUTH2</span></div>
       <p class="micro">THE STACK IS A TOOL. THE SYSTEM IS THE CRAFT.</p>
     </div><div class="world-tag tag-systems">02 / SYSTEMS PLANET</div>
   </section>
@@ -53,7 +56,7 @@
       <h2>Built in the<br><em>real world.</em></h2>
       <div class="mission"><small>MISSION 01</small><h3>Bonus Promotions Platform</h3><p>Backend services for campaign lifecycles, player eligibility, bonus assignment, wagering, cancellation, expiry and reporting.</p><div class="stack">JAVA · SPRING BOOT · KAFKA · POSTGRESQL · REDIS</div></div>
       <div class="mission"><small>MISSION 02</small><h3>AI Production Log Analyzer</h3><p>An exploration into Elasticsearch-powered log investigation and LLM-assisted incident analysis.</p><div class="stack">SPRING BOOT · ELASTICSEARCH · LLM</div></div>
-      <div class="mission"><small>MISSION 03</small><h3>CareerPilot</h3><p>A personal application exploring job-search workflows, resume management and automation.</p><div class="stack">JAVA 21 · SPRING BOOT · OAUTH2</div></div>
+      <div class="mission"><small>MISSION 03</small><h3>Career Autopilot <span class="in-progress">IN PROGRESS</span></h3><p>A Go service on AWS Bedrock that analyses resumes against live job listings, produces ATS-style scoring, identifies gaps and rewrites weaker sections. Uses local and Redis caching to reduce repeated LLM calls.</p><div class="stack">GOLANG · AWS BEDROCK · REDIS · LLM</div></div>
       <p class="fineprint">Professional work is described at a high level to respect employer confidentiality. Personal explorations are not presented as production-scale systems.</p>
     </div><div class="world-tag tag-missions">03 / THE WORK FRONTIER</div>
   </section>
@@ -71,7 +74,7 @@
       <div class="eyebrow">SECTOR 05 <b>·</b> OPEN CHANNEL</div><p class="kicker">END OF TRANSMISSION. BEGINNING OF A CONVERSATION.</p>
       <h2>Let's build<br><em>something meaningful.</em></h2>
       <p class="body">Have an interesting problem, an ambitious idea, or just want to talk engineering? My communication channel is open.</p>
-      <div class="links"><a class="primary-link" href="mailto:YOUR_EMAIL@example.com">SEND A TRANSMISSION ↗</a><a href="https://www.linkedin.com/in/YOUR_LINKEDIN/" target="_blank" rel="noreferrer">LINKEDIN ↗</a><a href="https://github.com/YOUR_GITHUB" target="_blank" rel="noreferrer">GITHUB ↗</a></div>
+      <div class="links"><a class="primary-link" href="mailto:arorarishabh607@gmail.com">SEND A TRANSMISSION ↗</a><a href="https://www.linkedin.com/in/rishabh-arora1512" target="_blank" rel="noreferrer">LINKEDIN ↗</a><a href="https://github.com/RishabhArora1512" target="_blank" rel="noreferrer">GITHUB ↗</a><a class="resume-link" href="resume.pdf" download="Rishabh-Arora-Resume.pdf">DOWNLOAD RESUME ↓</a></div>
       <p class="copyright">RISHABH ARORA <b>·</b> ENDLESS CURIOSITY <b>·</b> © <span id="year"></span></p>
     </div><div class="world-tag tag-contact">END OF TRANSMISSION</div>
   </section>

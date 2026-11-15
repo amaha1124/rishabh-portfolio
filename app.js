@@ -126,8 +126,8 @@ const clock = new THREE.Clock();
 let lastScrollAt = 0;
 window.addEventListener('keydown', event => {
   if (keyBindings[event.code]) { pressed.add(keyBindings[event.code]); event.preventDefault(); }
-  if (['ArrowRight', 'ArrowDown'].includes(event.key)) { velocity.z -= 2.4; event.preventDefault(); }
-  if (['ArrowLeft', 'ArrowUp'].includes(event.key)) { velocity.z += 2.4; event.preventDefault(); }
+  if (['ArrowRight', 'ArrowDown'].includes(event.key)) { velocity.z -= 12; event.preventDefault(); }
+  if (['ArrowLeft', 'ArrowUp'].includes(event.key)) { velocity.z += 12; event.preventDefault(); }
   if (event.code === 'Space') { pressed.add('up'); event.preventDefault(); }
 });
 window.addEventListener('keyup', event => { if (keyBindings[event.code]) pressed.delete(keyBindings[event.code]); if (event.code === 'Space') pressed.delete('up'); });
@@ -137,10 +137,10 @@ window.addEventListener('blur', () => { pressed.clear(); dragging = false; });
 window.addEventListener('wheel', event => {
   event.preventDefault();
   const scale = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? innerHeight : 1;
-  velocity.z -= event.deltaY * scale * 0.012;
-  velocity.x += event.deltaX * scale * 0.009;
-  velocity.z = THREE.MathUtils.clamp(velocity.z, -24, 24);
-  velocity.x = THREE.MathUtils.clamp(velocity.x, -12, 12);
+  velocity.z -= event.deltaY * scale * 0.075;
+  velocity.x += event.deltaX * scale * 0.055;
+  velocity.z = THREE.MathUtils.clamp(velocity.z, -42, 42);
+  velocity.x = THREE.MathUtils.clamp(velocity.x, -28, 28);
   lastScrollAt = performance.now();
 }, { passive: false });
 
@@ -173,32 +173,18 @@ document.querySelector('#prevScene')?.addEventListener('click', () => { velocity
 document.querySelector('#nextScene')?.addEventListener('click', () => { velocity.z = -10; });
 document.querySelector('#year').textContent = new Date().getFullYear();
 
-// Quiet original ambient synth. Starts only after an explicit click/tap.
-let audioContext = null, audioNodes = [], soundOn = false;
+// Original ambient soundtrack. Playback begins only after the visitor presses the control.
 const soundButton = document.querySelector('#soundBtn');
-function startAmbient() {
-  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContextClass) return;
-  audioContext = audioContext || new AudioContextClass(); audioContext.resume();
-  const master = audioContext.createGain(); master.gain.value = 0.0001; master.connect(audioContext.destination);
-  const filter = audioContext.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 520; filter.Q.value = 0.4; filter.connect(master);
-  [55, 82.41, 110].forEach((frequency, index) => {
-    const oscillator = audioContext.createOscillator(), gain = audioContext.createGain();
-    oscillator.type = 'sine'; oscillator.frequency.value = frequency; gain.gain.value = [0.24, 0.11, 0.055][index];
-    oscillator.connect(gain); gain.connect(filter); oscillator.start(); audioNodes.push(oscillator);
-  });
-  audioNodes.push(master); master.gain.setTargetAtTime(0.12, audioContext.currentTime, 0.9);
-}
-function stopAmbient() {
-  if (!audioContext) return;
-  const master = audioNodes[audioNodes.length - 1];
-  if (master?.gain) master.gain.setTargetAtTime(0.0001, audioContext.currentTime, 0.35);
-  window.setTimeout(() => { audioNodes.forEach(node => { if (node instanceof OscillatorNode) { try { node.stop(); } catch {} } }); audioNodes = []; }, 1400);
-}
-soundButton?.addEventListener('click', () => {
-  soundOn = !soundOn;
-  if (soundOn) { startAmbient(); soundButton.textContent = 'SOUND ON'; soundButton.setAttribute('aria-label', 'Mute ambient music'); }
-  else { stopAmbient(); soundButton.textContent = 'MUSIC OFF'; soundButton.setAttribute('aria-label', 'Play ambient music'); }
+const ambientTrack = document.querySelector('#ambientTrack');
+if (ambientTrack) ambientTrack.volume = 0.24;
+soundButton?.addEventListener('click', async () => {
+  if (!ambientTrack) return;
+  if (ambientTrack.paused) {
+    try { await ambientTrack.play(); soundButton.textContent = 'SOUND ON'; soundButton.setAttribute('aria-label', 'Pause ambient soundtrack'); }
+    catch (error) { soundButton.textContent = 'AUDIO UNAVAILABLE'; console.error('Could not play soundtrack:', error); }
+  } else {
+    ambientTrack.pause(); soundButton.textContent = 'PLAY SOUND'; soundButton.setAttribute('aria-label', 'Play ambient soundtrack');
+  }
 });
 
 function animate() {
@@ -213,9 +199,9 @@ function animate() {
   if (pressed.has('left')) desired.sub(right);
   if (pressed.has('up')) desired.y += 1;
   if (pressed.has('down')) desired.y -= 1;
-  if (desired.lengthSq() > 0) desired.normalize().multiplyScalar(10);
-  velocity.addScaledVector(desired.clone().sub(velocity), Math.min(1, delta * 3.8));
-  if (desired.lengthSq() === 0) velocity.multiplyScalar(Math.pow(0.91, delta * 60));
+  if (desired.lengthSq() > 0) desired.normalize().multiplyScalar(20);
+  velocity.addScaledVector(desired.clone().sub(velocity), Math.min(1, delta * 5.5));
+  if (desired.lengthSq() === 0) velocity.multiplyScalar(Math.pow(0.965, delta * 60));
   camera.position.addScaledVector(velocity, delta);
   camera.position.x = THREE.MathUtils.clamp(camera.position.x, -65, 65);
   camera.position.y = THREE.MathUtils.clamp(camera.position.y, -35, 35);
