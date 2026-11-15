@@ -590,3 +590,52 @@ html.mobile-lite body.no-webgl .skip-contact-btn{display:flex!important}
   .hud-feature-btn,.constellation-open-btn,.constellation-node{transition:none!important}
   .feature-dialog-backdrop{backdrop-filter:none;-webkit-backdrop-filter:none}
 }
+
+/* v8.14 — Android / Chromium native page scrolling for lightweight mobile mode.
+   Keep the document element as the single scroll container. A second overflow
+   container on body can prevent touch scrolling on some Android Chrome devices. */
+html.mobile-lite,
+html.no-webgl {
+  display: block;
+  width: 100%;
+  height: auto !important;
+  min-height: 100%;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: auto !important;
+  scroll-behavior: smooth;
+}
+html.mobile-lite body:not(.feature-dialog-open),
+html.no-webgl body:not(.feature-dialog-open) {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: auto !important;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: visible !important;
+  overscroll-behavior-y: auto !important;
+  touch-action: pan-y pinch-zoom;
+  -webkit-overflow-scrolling: touch;
+}
+html.mobile-lite #journey,
+html.no-webgl #journey {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  touch-action: pan-y pinch-zoom;
+}
+html.mobile-lite .chapter,
+html.no-webgl .chapter {
+  position: relative !important;
+  inset: auto !important;
+  display: block !important;
+  width: 100%;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  touch-action: pan-y pinch-zoom;
+}
