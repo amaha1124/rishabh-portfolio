@@ -444,3 +444,9 @@ html.mobile-lite #contact{scroll-margin-top:70px}
 /* Keep both shortcuts visible in the mobile reading layout even though WebGL is disabled. */
 html.mobile-lite body.no-webgl .return-top-btn,
 html.mobile-lite body.no-webgl .skip-contact-btn{display:flex!important}
+
+
+/* v8.10 — Chapter location tags duplicated the chapter caption and collided with
+   the persistent TOP / SKIP TO CONTACT shortcuts. Keep chapter context in the
+   progress/caption UI and remove these decorative overlays at every viewport. */
+.world-tag { display: none !important; }

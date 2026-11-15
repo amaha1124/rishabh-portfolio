@@ -46,3 +46,10 @@ git push origin main
 - In desktop 3D mode, it smoothly navigates to the final Contact chapter.
 - In lightweight mobile mode, it scrolls directly to the Contact section while the TOP control smoothly returns to the beginning.
 - Kept the original keyboard-only skip link for accessibility.
+
+
+## v8.10 — Remove chapter label overlap
+- Hides the decorative per-chapter world labels (for example, “01 / THE ORIGIN”) that overlapped the fixed TOP and SKIP TO CONTACT buttons.
+- Keeps the current chapter name available through the existing scene caption / HUD and keeps section headings unchanged.
+- Applies across desktop, mobile, WebGL and lightweight mobile layouts.
+- Marks the decorative labels as hidden from assistive technology.
