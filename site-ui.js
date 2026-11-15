@@ -86,3 +86,24 @@ returnTopButton?.addEventListener('click', () => {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
 });
+
+
+// Lightweight career-orbit interaction: selecting a dwarf planet reveals its milestone.
+const careerPlanets = Array.from(document.querySelectorAll('.career-planet'));
+const careerCompany = document.getElementById('careerCompany');
+const careerRole = document.getElementById('careerRole');
+const careerPeriod = document.getElementById('careerPeriod');
+const careerSummary = document.getElementById('careerSummary');
+careerPlanets.forEach((planet) => {
+  planet.addEventListener('click', () => {
+    careerPlanets.forEach((item) => {
+      const selected = item === planet;
+      item.classList.toggle('is-active', selected);
+      item.setAttribute('aria-pressed', String(selected));
+    });
+    if (careerCompany) careerCompany.textContent = planet.dataset.company || '';
+    if (careerRole) careerRole.textContent = planet.dataset.role || '';
+    if (careerPeriod) careerPeriod.textContent = planet.dataset.period || '';
+    if (careerSummary) careerSummary.textContent = planet.dataset.summary || '';
+  });
+});

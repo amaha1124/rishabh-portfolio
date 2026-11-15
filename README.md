@@ -1,4 +1,4 @@
-# Rishabh Arora — Space Portfolio v8.7
+# Rishabh Arora — Space Portfolio v8.11
 
 ## Mobile visual-quality pass
 - Replaces the lightweight mobile starfield with a local, resolution-independent SVG background.
@@ -53,3 +53,8 @@ git push origin main
 - Keeps the current chapter name available through the existing scene caption / HUD and keeps section headings unchanged.
 - Applies across desktop, mobile, WebGL and lightweight mobile layouts.
 - Marks the decorative labels as hidden from assistive technology.
+
+
+## v8.11 — Career Orbit
+
+The Experience section now includes an interactive career timeline represented by three dwarf planets: Ceres (HighRadius Technologies), Haumea (Arrise Solutions, SDE I), and Pluto (Arrise Solutions / Pragmatic Play, Senior Software Engineer · SDE II). Selecting a planet updates the role, date range and short career summary. The timeline is built with lightweight CSS and native buttons; it adds no image, canvas, or 3D dependencies and remains available in mobile lightweight mode.

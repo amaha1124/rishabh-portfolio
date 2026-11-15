@@ -29,9 +29,6 @@ body.scene-ready #scene canvas{opacity:1}.vignette{position:fixed;inset:0;z-inde
 .tech-grid span,.future-list span{border-color:#c5b69a22;background:#0a0d16a8}
 .mission{border-left-color:#c6a77b77}
 .mission small{color:#d2b98f}
-.experience-mini{margin-top:22px;padding-top:12px;border-top:1px solid #c5b69a22;max-width:530px}
-.experience-mini p{font:7px/1.8 var(--mono);letter-spacing:.07em;color:#8290a7;margin:4px 0}
-.experience-mini b{font-weight:500;color:#d5c6ad}
 .education-line{font:7px/1.7 var(--mono);letter-spacing:.08em;color:#77849a;margin-top:10px}
 .in-progress{font:6px var(--mono);letter-spacing:.1em;color:#d1b98e;margin-left:7px}
 .links .resume-link{color:#e0c69d;border-bottom:1px solid #c6a77b66;padding-bottom:5px}
@@ -41,7 +38,6 @@ body.scene-ready #scene canvas{opacity:1}.vignette{position:fixed;inset:0;z-inde
 .scene-controls button:hover{background:#c6a77b;color:#17130e}
 .dots button.selected{background:#c6a77b;border-color:#c6a77b;box-shadow:0 0 10px #c6a77b55}
 .progress span{background:linear-gradient(90deg,#c6a77b,#aeb9c9);box-shadow:none}
-@media(max-width:760px){.experience-mini{margin-top:14px}.experience-mini p{font-size:6px}.education-line{font-size:6px}}
 
 /* Responsive layout: preserve the cinematic scene while making every content panel readable. */
 #journey{height:100dvh;min-height:100dvh}
@@ -67,7 +63,6 @@ body.scene-ready #scene canvas{opacity:1}.vignette{position:fixed;inset:0;z-inde
  .copy h2{font-size:clamp(36px,9vw,56px);line-height:1.02;margin-bottom:12px}
  .body{font-size:clamp(11px,2.8vw,13px);line-height:1.65;max-width:100%;margin:9px 0}
  .stats{gap:clamp(12px,5vw,24px);flex-wrap:wrap;margin-top:16px}.stats strong{font-size:clamp(19px,5vw,24px)}.stats small{font-size:6px}
- .experience-mini{margin-top:14px;padding-top:8px}.experience-mini p{font-size:6px;line-height:1.65;overflow-wrap:anywhere}
  .education-line{font-size:6px;line-height:1.6}
  .tech-grid{gap:6px;margin-top:14px}.tech-grid span,.future-list span{font-size:7px;padding:7px 8px}
  .micro{font-size:7px;line-height:1.6}.mission-copy{top:8%!important;width:88%!important}
@@ -126,7 +121,6 @@ body.scene-ready #scene canvas{opacity:1}.vignette{position:fixed;inset:0;z-inde
   .lead { font-size:clamp(14px,3.8vw,16px); line-height:1.7; }
   .mission p { color:#cbd4e2; font-size:clamp(12px,3.2vw,14px); font-weight:500; line-height:1.65; margin:5px 0 2px; }
   .mission h3 { font-size:clamp(14px,3.7vw,16px); line-height:1.3; margin:5px 0; }
-  .experience-mini p { color:#c1ccdc; font-size:clamp(8px,2.4vw,10px); line-height:1.7; }
   .education-line { color:#b6c3d6; font-size:clamp(8px,2.3vw,10px); }
   .stack, .fineprint, .micro { color:#aebbd0; font-size:clamp(8px,2.25vw,10px); line-height:1.65; }
   .copy.left,.copy.right,.contact-copy { padding:10px 9px 22px 0; }
@@ -153,8 +147,6 @@ body.scene-ready #scene canvas{opacity:1}.vignette{position:fixed;inset:0;z-inde
   .stats{margin-top:10px!important;gap:10px!important}
   .tech-grid{margin-top:9px!important;gap:5px!important}
   .tech-grid span,.future-list span{padding:5px 7px!important}
-  .experience-mini{margin-top:8px!important;padding-top:6px!important}
-  .experience-mini p{line-height:1.45!important}
   .mission{margin:8px 0!important;padding-left:9px!important}
   .mission h3{font-size:clamp(12px,3.3vw,14px)!important;margin:3px 0!important}
   .mission p{font-size:clamp(10px,2.8vw,12px)!important;line-height:1.45!important;margin:3px 0!important}
@@ -450,3 +442,45 @@ html.mobile-lite body.no-webgl .skip-contact-btn{display:flex!important}
    the persistent TOP / SKIP TO CONTACT shortcuts. Keep chapter context in the
    progress/caption UI and remove these decorative overlays at every viewport. */
 .world-tag { display: none !important; }
+
+
+/* v8.11 — Career milestones as a compact dwarf-planet orbit. */
+.career-orbit{max-width:530px;margin-top:20px;padding-top:12px;border-top:1px solid #c5b69a22}
+.career-orbit-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font:7px var(--mono);letter-spacing:.15em;color:#8295b7}
+.career-orbit-heading span:first-child{color:#d5c6ad}
+.career-planets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;position:relative;isolation:isolate}
+.career-planets::before{content:"";position:absolute;z-index:-1;left:16%;right:16%;top:25px;border-top:1px dashed #b7c7df55}
+.career-planet{appearance:none;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;padding:3px 4px 7px;border:1px solid transparent;border-radius:4px;background:transparent;color:#9baac4;cursor:pointer;font:inherit;transition:border-color .2s,background .2s,color .2s}
+.career-planet:hover,.career-planet:focus-visible,.career-planet.is-active{border-color:#c6a77b66;background:#c6a77b0d;color:#f0dfc2}
+.career-planet:focus-visible{outline:2px solid #e4d0aa;outline-offset:3px}
+.career-planet-sphere{display:block;width:43px;height:43px;flex:0 0 auto;border-radius:50%;position:relative;box-shadow:inset -9px -7px 12px #02040bb8, inset 4px 3px 8px #ffffff35,0 0 14px #8ea5c51c}
+.career-planet-sphere::after{content:"";position:absolute;inset:0;border-radius:inherit;background:repeating-linear-gradient(165deg,transparent 0 7px,#ffffff12 8px,transparent 9px 13px);mix-blend-mode:screen;opacity:.6}
+.planet-ceres{background:radial-gradient(circle at 32% 28%,#d7c5a3 0 9%,#a78f70 34%,#665b50 70%,#272c35 100%)}
+.planet-haumea{width:48px;height:34px;margin:4px 0 5px;border-radius:50%;transform:rotate(-18deg);background:radial-gradient(ellipse at 34% 28%,#e4d3bc 0 8%,#a78b79 36%,#665565 72%,#292b39 100%);box-shadow:inset -10px -6px 12px #02040bbb,inset 4px 2px 8px #ffffff35,0 0 12px #b7a0c31c}
+.planet-pluto{background:radial-gradient(circle at 32% 27%,#e5c5a6 0 8%,#bd947a 34%,#765d5d 66%,#282c38 100%)}
+.career-planet.is-active .career-planet-sphere{box-shadow:inset -9px -7px 12px #02040bb8,inset 4px 3px 8px #ffffff35,0 0 0 2px #c6a77b88,0 0 22px #c6a77b44}
+.career-planet-name{font:700 7px var(--mono);letter-spacing:.16em;color:#d9e2f1}
+.career-planet-years{font:6px var(--mono);letter-spacing:.1em;color:#7789a9}
+.career-detail{margin-top:8px;padding:10px 12px;border-left:2px solid #c6a77b77;background:linear-gradient(90deg,#c6a77b12,transparent 78%);min-height:76px}
+.career-detail-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.career-detail-company{font:700 8px var(--mono);letter-spacing:.07em;color:#e1d1b5}
+.career-detail-period{font:6px var(--mono);letter-spacing:.1em;color:#8798b7}
+.career-detail strong{display:block;margin-top:4px;font-size:11px;line-height:1.4;color:#eef3ff}
+.career-detail p{margin:4px 0 0;font-size:8px;line-height:1.55;color:#9eacc4;max-width:490px}
+@media(max-width:760px){
+  .career-orbit{margin-top:14px;padding-top:9px}
+  .career-planets{gap:4px}
+  .career-planets::before{top:23px}
+  .career-planet{padding:3px 2px 6px;gap:3px}
+  .career-planet-sphere{width:38px;height:38px}
+  .planet-haumea{width:43px;height:30px;margin:4px 0 4px}
+  .career-planet-name{font-size:6px;letter-spacing:.12em}
+  .career-planet-years{font-size:6px}
+  .career-detail{margin-top:6px;padding:9px 10px;min-height:0}
+  .career-detail-company{font-size:7px}
+  .career-detail-period{font-size:6px}
+  .career-detail strong{font-size:10px}
+  .career-detail p{font-size:8px}
+}
+@media(max-width:350px){.career-detail-heading{display:block}.career-detail-period{display:block;margin-top:3px}.career-planet-sphere{width:34px;height:34px}.planet-haumea{width:39px;height:28px}}
+@media(prefers-reduced-motion:reduce){.career-planet{transition:none}}
