@@ -359,44 +359,66 @@ html.mobile-lite body .mobile-planet{display:block}
 }
 
 
-/* v8.7 mobile visual-quality pass: use resolution-independent SVG artwork and
-   avoid fixed CSS backgrounds, which can tear or repaint unevenly on mobile Safari. */
+/* v8.8 mobile rendering hardening: use CSS vector star points and a high-resolution
+   pre-rasterized planet in an img element. Avoid SVG-as-background scaling/compositing. */
 html.mobile-lite {
   background-color: #030611;
-  background-image: url('/assets/mobile-starfield-v87.svg');
-  background-position: center top;
-  background-size: 100% auto;
+  background-image: radial-gradient(circle 0.9px at 8% 12%, #e9d7bbcc 0 95%, transparent 100%),
+  radial-gradient(circle 0.8px at 19% 68%, #dce7ff99 0 95%, transparent 100%),
+  radial-gradient(circle 1px at 33% 32%, #b9cce8aa 0 95%, transparent 100%),
+  radial-gradient(circle 0.8px at 47% 83%, #e9d7bb88 0 95%, transparent 100%),
+  radial-gradient(circle 1.1px at 61% 17%, #edf3ffbb 0 95%, transparent 100%),
+  radial-gradient(circle 0.9px at 76% 58%, #d4dfff99 0 95%, transparent 100%),
+  radial-gradient(circle 0.8px at 91% 28%, #edf3ff99 0 95%, transparent 100%),
+  radial-gradient(circle 0.7px at 13% 44%, #b9cce877 0 95%, transparent 100%),
+  radial-gradient(circle 0.8px at 27% 91%, #e9d7bb99 0 95%, transparent 100%),
+  radial-gradient(circle 0.8px at 43% 6%, #dce7ff99 0 95%, transparent 100%),
+  radial-gradient(circle 0.9px at 56% 49%, #a8bddd99 0 95%, transparent 100%),
+  radial-gradient(circle 0.8px at 70% 76%, #e9d7bb88 0 95%, transparent 100%),
+  radial-gradient(circle 1px at 84% 9%, #dce7ff99 0 95%, transparent 100%),
+  radial-gradient(circle 0.7px at 96% 88%, #b9cce877 0 95%, transparent 100%),
+  radial-gradient(circle 0.8px at 4% 79%, #e9d7bb88 0 95%, transparent 100%),
+  radial-gradient(circle 0.7px at 38% 57%, #dce7ff88 0 95%, transparent 100%),
+  radial-gradient(circle 0.8px at 64% 94%, #a8bddd88 0 95%, transparent 100%),
+  radial-gradient(circle 0.9px at 79% 39%, #e9d7bb99 0 95%, transparent 100%),
+  radial-gradient(circle 0.8px at 23% 20%, #b9cce899 0 95%, transparent 100%),
+  radial-gradient(circle 0.8px at 52% 27%, #edf3ff99 0 95%, transparent 100%),
+  radial-gradient(circle 0.7px at 88% 63%, #dce7ff88 0 95%, transparent 100%),
+  radial-gradient(circle 0.7px at 6% 96%, #e9d7bb88 0 95%, transparent 100%),
+  radial-gradient(circle 0.8px at 34% 75%, #a8bddd99 0 95%, transparent 100%),
+  radial-gradient(circle 0.7px at 72% 4%, #e9d7bb88 0 95%, transparent 100%);
+  background-size: 100% 760px;
   background-repeat: repeat-y;
+  background-position: 0 0;
   background-attachment: scroll;
 }
 html.mobile-lite body {
-  background-color: transparent !important;
+  background: transparent !important;
   background-image: none !important;
   background-attachment: scroll !important;
 }
-html.mobile-lite body .mobile-planet {
-  width: clamp(112px, 32vw, 144px);
-  aspect-ratio: 1;
-  opacity: 1;
-  background-color: transparent;
-  background-image: url('/assets/mobile-earth-v87.svg');
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
-  border-radius: 0;
-  box-shadow: none;
+html.mobile-lite body img.mobile-planet {
+  display: block;
+  position: absolute;
+  z-index: 1;
+  right: 7%;
+  bottom: 18px;
+  width: clamp(108px, 31vw, 132px);
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  background: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  transform: none !important;
   image-rendering: auto;
+  -webkit-backface-visibility: visible;
+  backface-visibility: visible;
 }
-html.mobile-lite body .mobile-planet::after { display: none; }
-html.mobile-lite body .case-dialog-backdrop { backdrop-filter: none; -webkit-backdrop-filter: none; }
-html.mobile-lite body .case-dialog-panel { box-shadow: 0 12px 36px #0008; }
-html.mobile-lite body .case-node,
-html.mobile-lite body .case-metrics > div,
-html.mobile-lite body .tech-grid span,
-html.mobile-lite body .future-list span {
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-}
-@media (max-width: 760px) {
-  html.mobile-lite body .mobile-planet { right: 7%; bottom: 18px; width: clamp(108px, 31vw, 132px); }
+html.mobile-lite body img.mobile-planet::after { display: none !important; }
+@media (max-width: 360px) {
+  html.mobile-lite body img.mobile-planet { width: 104px; right: 6%; bottom: 14px; }
 }
